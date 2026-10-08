@@ -7,13 +7,13 @@
   },
   "yfinance": {
     "ok": true,
-    "at": "2026-10-08T19:06:59+09:00",
+    "at": "2026-10-08T19:08:20+09:00",
     "updated_rows": 7,
     "message": ""
   },
   "jmtba": {
     "ok": true,
-    "at": "2026-10-08T18:46:13+09:00",
+    "at": "2026-10-08T19:14:53+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -25,7 +25,7 @@
   },
   "fred": {
     "ok": false,
-    "at": "2026-10-08T18:39:57+09:00",
+    "at": "2026-10-08T19:08:37+09:00",
     "message": "RuntimeError: FRED: 全系列失敗 XTEXVA01JPM667S: ReadTimeout / NEWORDER: ReadTimeout"
   },
   "stocks": {
@@ -36,13 +36,19 @@
   },
   "esri": {
     "ok": true,
-    "at": "2026-10-08T18:39:50+09:00",
+    "at": "2026-10-08T19:08:31+09:00",
     "updated_rows": 0,
     "message": ""
   },
   "cao_surveys": {
     "ok": true,
-    "at": "2026-10-08T18:39:52+09:00",
+    "at": "2026-10-08T19:08:34+09:00",
+    "updated_rows": 0,
+    "message": ""
+  },
+  "industry_jp": {
+    "ok": true,
+    "at": "2026-10-08T19:08:25+09:00",
     "updated_rows": 0,
     "message": ""
   }
