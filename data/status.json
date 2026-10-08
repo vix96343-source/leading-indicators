@@ -34,17 +34,10 @@
     "updated_rows": 0,
     "message": ""
   },
-<<<<<<< Updated upstream
   "esri": {
     "ok": true,
     "at": "2026-10-08T18:12:21+09:00",
     "updated_rows": 0,
-=======
-  "cao_surveys": {
-    "ok": true,
-    "at": "2026-10-08T18:23:57+09:00",
-    "updated_rows": 16,
->>>>>>> Stashed changes
     "message": ""
   }
 }
