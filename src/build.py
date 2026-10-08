@@ -12,7 +12,7 @@ from .sources import trendforce
 
 DOCS = store.ROOT / "docs"      # 公開版（GitHub Pages）
 LOCAL = store.ROOT / "local"    # 全指標版（転載制限のあるデータを含む。git 管理外）
-SOURCE_LABEL = {"cao_surveys": "内閣府（景気ウォッチャー・消費動向）", "esri": "内閣府", "trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
+SOURCE_LABEL = {"ctia": "中钨在线", "industry_jp": "業界統計（国交省・鉄鋼連盟・産機工・JNTO）", "cao_surveys": "内閣府（景気ウォッチャー・消費動向）", "esri": "内閣府", "trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
                 "jmtba": "日本工作機械工業会", "seaj": "日本半導体製造装置協会"}
 ARROW = {"up": "↑", "down": "↓", "flat": "→", "none": "・"}
 DIRECTION_LABEL = {"up": "上昇", "down": "下落", "flat": "横ばい", "none": "判定不可"}
@@ -25,6 +25,13 @@ def source_url(ind: dict) -> str:
         "fred": lambda: f"https://fred.stlouisfed.org/series/{p['series']}",
         "yfinance": lambda: f"https://finance.yahoo.com/quote/{quote(p['ticker'])}",
         "jmtba": lambda: "https://www.jmtba.or.jp/statistics/",
+        "ctia": lambda: "https://www.ctia.com.cn/prices/tungsten-price",
+        "industry_jp": lambda: {
+            "housing": "https://www.mlit.go.jp/sogoseisaku/jouhouka/sosei_jouhouka_tk4_000002.html",
+            "steel": "https://www.jisf.or.jp/data/seisan/",
+            "jsim": "https://www.jsim.or.jp/statistical-data/",
+            "inbound": "https://www.jnto.go.jp/statistics/data/visitors-statistics/",
+        }[p["field"].split("_")[0]],
         "cao_surveys": lambda: ("https://www.esri.cao.go.jp/jp/stat/shouhi/shouhi.html" if p["field"] == "consumer_confidence"
                                 else "https://www5.cao.go.jp/keizai3/watcher_index.html"),
         "esri": lambda: "https://www.esri.cao.go.jp/jp/stat/juchu/juchu.html",

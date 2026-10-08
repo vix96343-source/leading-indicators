@@ -9,3 +9,4 @@ local/
 data/series/tf_*.csv
 data/trendforce_items.json
 data/series/seaj_*.csv
+data/series/w_*.csv

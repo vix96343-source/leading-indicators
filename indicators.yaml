@@ -8,6 +8,9 @@
 #   seaj:       field (semi_jp)
 #   cao_surveys: field (watcher_future / watcher_current / consumer_confidence)
 #   esri:       field (juchu_core / juchu_foreign / juchu_total)
+#   industry_jp: field (housing_total / housing_owner / housing_rental / steel_crude /
+#                       jsim_total / jsim_domestic / jsim_foreign / inbound_total / inbound_china)
+#   ctia:       field (w_apt / w_concentrate / w_ferro / w_powder / w_apt_eu)  ※ restricted
 #
 # good: up = 上昇が関連銘柄の追い風 / down = 低下が追い風 / neutral = 方向で良し悪しを付けない
 # scale: 表示時に値へ掛ける倍率（単位換算）  stale_days: 「更新停止?」と出すまでの日数
@@ -21,24 +24,34 @@ site:
 
 groups:
   - id: semi
-    name: 半導体市場
-    note: TrendForce の DRAM・NAND 価格（全品目）とメモリ大手の株価。TrendForce の価格履歴はこのツールが毎営業日取得して蓄積する。
-    public_note: メモリ大手の株価。TrendForce の価格は規約上公開できないため、手元の全指標版（local/index.html）にだけ載せている。
+    name: 業界：半導体
+    note: TrendForce の DRAM・NAND 価格（全品目）、日本製半導体製造装置、SOX とメモリ大手の株価。
+    public_note: SOX とメモリ大手の株価。TrendForce・SEAJ は規約上公開できないため手元の全指標版（local/index.html）にだけ載せている。
+  - id: machinery
+    name: 業界：機械
+    note: 工作機械・産業機械・機械受注（内閣府）。設備投資の先行指標。
+  - id: housing
+    name: 業界：住宅・建設
+    note: 新設住宅着工（国交省）と米住宅着工許可、木材価格。
+  - id: other_ind
+    name: 業界：鉄鋼・観光
+    note: 粗鋼生産（鉄鋼連盟）と訪日外客数（JNTO）。
+  - id: materials
+    name: 素材価格
+    note: 貴金属・ベースメタル・鉄鋼原料・エネルギーの先物と、レアメタル関連 ETF。タングステンは中钨在线の日次市況（手元版のみ）。
+    public_note: 貴金属・ベースメタル・鉄鋼原料・エネルギーの先物と、レアメタル関連 ETF。タングステン価格は規約上公開できないため手元版にだけ載せている。
   - id: japan
     name: 国内景気
-    note: 内閣府の機械受注・景気ウォッチャー・消費者態度指数と、日本の輸出。
-  - id: industry
-    name: 業界統計（受注・出荷）
-    note: 月次統計。前年比と、その3か月前からの変化（加速/減速）を見る。
+    note: 内閣府の景気ウォッチャー・消費者態度指数と、日本の輸出。
   - id: macro
     name: 海外景気
     note: 海外の輸出・生産（FRED）。
   - id: us
     name: 米国景気
-    note: 米国の受注・住宅・雇用・企業景況感（FRED）。
+    note: 米国の受注・雇用・企業景況感（FRED）。
   - id: market
     name: 市場ベース
-    note: 日次の価格・金利。1か月・3か月の変化と、過去1年のレンジ内の位置を見る。
+    note: 日次の株価指数・金利・為替。1か月・3か月の変化を見る。
 
 # TrendForce の DRAM・NAND 価格表は、ページ上の全品目を自動で取る（品目の指定は不要）。
 # 規約上公開できないため --public では取得も表示もしない。
@@ -66,9 +79,273 @@ indicators:
     good: up
     lead: HBM・DRAM市況の市場評価
 
+  # ── 業界：機械（産業機械） ──
+  - id: jsim_total
+    group: machinery
+    name: 産業機械受注 総額
+    source: industry_jp
+    params: {field: jsim_total}
+    unit: 億円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: ボイラ・化学機械・ポンプ・運搬機械など（日本産業機械工業会）
+    stale_days: 110
+  - id: jsim_domestic
+    group: machinery
+    name: 産業機械受注 内需
+    source: industry_jp
+    params: {field: jsim_domestic}
+    unit: 億円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 国内のプラント・設備投資
+    stale_days: 110
+  - id: jsim_foreign
+    group: machinery
+    name: 産業機械受注 外需
+    source: industry_jp
+    params: {field: jsim_foreign}
+    unit: 億円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 海外プラント案件（月ごとの振れが大きい）
+    stale_days: 110
+
+  # ── 業界：住宅・建設 ──
+  - id: housing_total
+    group: housing
+    name: 新設住宅着工 総戸数
+    source: industry_jp
+    params: {field: housing_total}
+    unit: 戸
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 住宅メーカー・建材・住設（国交省、原数値）
+  - id: housing_owner
+    group: housing
+    name: 新設住宅着工 持家
+    source: industry_jp
+    params: {field: housing_owner}
+    unit: 戸
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 注文住宅 → ハウスメーカー
+  - id: housing_rental
+    group: housing
+    name: 新設住宅着工 貸家
+    source: industry_jp
+    params: {field: housing_rental}
+    unit: 戸
+    freq: monthly
+    yoy: true
+    good: up
+    lead: アパート建築 → 賃貸住宅メーカー
+  - id: lumber
+    group: housing
+    name: 木材先物（米国）
+    source: yfinance
+    params: {ticker: "LBR=F"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: 住宅需要と建材コスト
+
+  # ── 業界：鉄鋼・観光 ──
+  - id: steel_crude
+    group: other_ind
+    name: 粗鋼生産
+    source: industry_jp
+    params: {field: steel_crude}
+    unit: 千トン
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 鉄鋼需要（自動車・建設・造船）→ 高炉・電炉
+  - id: inbound_total
+    group: other_ind
+    name: 訪日外客数 総数
+    source: industry_jp
+    params: {field: inbound_total}
+    unit: 人
+    freq: monthly
+    yoy: true
+    good: up
+    lead: インバウンド → 百貨店・ホテル・鉄道・空運
+  - id: inbound_china
+    group: other_ind
+    name: 訪日外客数 中国
+    source: industry_jp
+    params: {field: inbound_china}
+    unit: 人
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 中国人客 → 化粧品・百貨店
+
+  # ── 素材価格 ──
+  - id: gold
+    group: materials
+    name: 金
+    source: yfinance
+    params: {ticker: "GC=F"}
+    unit: USD/oz
+    freq: daily
+    good: up
+    lead: 安全資産・インフレヘッジ → 非鉄・資源
+  - id: silver
+    group: materials
+    name: 銀
+    source: yfinance
+    params: {ticker: "SI=F"}
+    unit: USD/oz
+    freq: daily
+    good: up
+    lead: 貴金属＋太陽電池・電子部品の工業需要
+  - id: platinum
+    group: materials
+    name: プラチナ
+    source: yfinance
+    params: {ticker: "PL=F"}
+    unit: USD/oz
+    freq: daily
+    good: up
+    lead: 自動車触媒・水素
+  - id: palladium
+    group: materials
+    name: パラジウム
+    source: yfinance
+    params: {ticker: "PA=F"}
+    unit: USD/oz
+    freq: daily
+    good: up
+    lead: ガソリン車触媒
+  - id: aluminum
+    group: materials
+    name: アルミ
+    source: yfinance
+    params: {ticker: "ALI=F"}
+    unit: USD/t
+    freq: daily
+    good: up
+    lead: 軽量化素材
+  - id: iron_ore
+    group: materials
+    name: 鉄鉱石（SGX）
+    source: yfinance
+    params: {ticker: "TIO=F"}
+    unit: USD/t
+    freq: daily
+    good: up
+    lead: 中国の鉄鋼生産 → 商社・海運
+  - id: hrc
+    group: materials
+    name: 熱延コイル（米国）
+    source: yfinance
+    params: {ticker: "HRC=F"}
+    unit: USD/st
+    freq: daily
+    good: up
+    lead: 鋼材市況
+  - id: natgas
+    group: materials
+    name: 天然ガス（米国）
+    source: yfinance
+    params: {ticker: "NG=F"}
+    unit: USD/MMBtu
+    freq: daily
+    good: up
+    lead: エネルギー・化学原料
+  - id: lithium_etf
+    group: materials
+    name: リチウム関連ETF (LIT)
+    source: yfinance
+    params: {ticker: "LIT"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: 電池素材の代替指標
+  - id: uranium_etf
+    group: materials
+    name: ウラン関連ETF (URA)
+    source: yfinance
+    params: {ticker: "URA"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: 原子力需要の代替指標
+  - id: rare_earth_etf
+    group: materials
+    name: レアアース関連ETF (REMX)
+    source: yfinance
+    params: {ticker: "REMX"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: レアアース・レアメタルの代替指標
+  - id: w_apt
+    group: materials
+    name: タングステン APT（中国）
+    source: ctia
+    params: {field: w_apt}
+    unit: 万元/t
+    freq: daily
+    good: up
+    lead: 超硬工具の原料
+    restricted: true   # 中钨在线は無断転載・使用・配布を禁止
+    stale_days: 10
+  - id: w_concentrate
+    group: materials
+    name: タングステン精鉱（中国）
+    source: ctia
+    params: {field: w_concentrate}
+    unit: 万元/t
+    freq: daily
+    good: up
+    lead: 鉱山側の価格
+    restricted: true   # 中钨在线は無断転載・使用・配布を禁止
+    stale_days: 10
+  - id: w_ferro
+    group: materials
+    name: フェロタングステン 70%（中国）
+    source: ctia
+    params: {field: w_ferro}
+    unit: 万元/t
+    freq: daily
+    good: up
+    lead: 特殊鋼の添加材
+    restricted: true   # 中钨在线は無断転載・使用・配布を禁止
+    stale_days: 10
+  - id: w_powder
+    group: materials
+    name: タングステン粉（中国）
+    source: ctia
+    params: {field: w_powder}
+    unit: 元/kg
+    freq: daily
+    good: up
+    lead: 超硬合金の直接原料
+    restricted: true   # 中钨在线は無断転載・使用・配布を禁止
+    stale_days: 10
+  - id: w_apt_eu
+    group: materials
+    name: タングステン APT（欧州）
+    source: ctia
+    params: {field: w_apt_eu}
+    unit: USD/mtu
+    freq: daily
+    good: up
+    lead: 欧州市場
+    restricted: true   # 中钨在线は無断転載・使用・配布を禁止
+    stale_days: 10
+
   # ── 国内景気 ───────────────────────────────────────────────
   - id: juchu_core
-    group: japan
+    group: machinery
     name: コア機械受注（船舶・電力除く民需）
     source: esri
     params: {field: juchu_core}
@@ -79,7 +356,7 @@ indicators:
     good: up
     lead: 国内設備投資の代表的な先行指標（季調値）→ FA・機械・建機
   - id: juchu_foreign
-    group: japan
+    group: machinery
     name: 機械受注 外需
     source: esri
     params: {field: juchu_foreign}
@@ -134,7 +411,7 @@ indicators:
 
   # ── 業界統計 ───────────────────────────────────────────────
   - id: jmtba_total
-    group: industry
+    group: machinery
     name: 工作機械受注 総額
     source: jmtba
     params: {field: total}
@@ -144,7 +421,7 @@ indicators:
     good: up
     lead: 設備投資の先行指標 → ファナック・DMG森精機・オークマ・THK
   - id: jmtba_domestic
-    group: industry
+    group: machinery
     name: 工作機械受注 内需
     source: jmtba
     params: {field: domestic}
@@ -154,7 +431,7 @@ indicators:
     good: up
     lead: 国内製造業の設備投資
   - id: jmtba_foreign
-    group: industry
+    group: machinery
     name: 工作機械受注 外需
     source: jmtba
     params: {field: foreign}
@@ -164,7 +441,7 @@ indicators:
     good: up
     lead: 海外製造業の設備投資
   - id: jmtba_china
-    group: industry
+    group: machinery
     name: 工作機械受注 中国
     source: jmtba
     params: {field: china}
@@ -174,7 +451,7 @@ indicators:
     good: up
     lead: 中国の設備投資（確報ベース、速報より約3週遅れ）
   - id: jmtba_elec
-    group: industry
+    group: machinery
     name: 工作機械受注 内需 電気・精密
     source: jmtba
     params: {field: elec_precision}
@@ -184,7 +461,7 @@ indicators:
     good: up
     lead: 国内の電子部品・半導体関連の設備投資（確報ベース）
   - id: seaj_semi
-    group: industry
+    group: semi
     name: 日本製半導体製造装置 販売高(3MA)
     source: seaj
     params: {field: semi_jp}
@@ -272,7 +549,7 @@ indicators:
     good: up
     lead: ニューヨーク州の製造業景況感（0超=拡大）
   - id: us_permits
-    group: us
+    group: housing
     name: 米 住宅着工許可件数
     source: fred
     params: {series: PERMIT}
@@ -303,7 +580,7 @@ indicators:
 
   # ── 市場ベース ─────────────────────────────────────────────
   - id: sox
-    group: market
+    group: semi
     name: フィラデルフィア半導体指数
     source: yfinance
     params: {ticker: "^SOX"}
@@ -312,7 +589,7 @@ indicators:
     good: up
     lead: 半導体サイクル → 日本の半導体・装置株
   - id: copper
-    group: market
+    group: materials
     name: 銅先物
     source: yfinance
     params: {ticker: "HG=F"}
@@ -379,7 +656,7 @@ indicators:
     good: neutral
     lead: NY連銀の景気後退確率モデルで使われる金利差
   - id: crude
-    group: market
+    group: materials
     name: WTI原油先物
     source: yfinance
     params: {ticker: "CL=F"}

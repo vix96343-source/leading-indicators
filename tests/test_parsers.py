@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.sources import cao_surveys, esri, fred, jmtba, seaj, trendforce
+from src.sources import cao_surveys, ctia, esri, fred, industry_jp, jmtba, seaj, trendforce
 
 FX = Path(__file__).parent / "fixtures"
 
@@ -109,3 +109,24 @@ def test_esri_juchu_csv():
     assert got["juchu_core"].to_dict() == {pd.Timestamp(2025, 12, 1): 900.0, pd.Timestamp(2026, 1, 1): 950.0,
                                            pd.Timestamp(2026, 2, 1): 990.0}
     assert got["juchu_foreign"][pd.Timestamp(2026, 2, 1)] == 1700.0
+
+
+def test_jsim_amounts_with_cho():
+    text = ("2026年5月 産業機械受注状況 1.概 要 本月の受注高は1兆36億200万円、前年同月比+84.9%となった。"
+            "内需は、8,302億1,900万円、前年同月比 外需は、1,733億8,300万円、前年同月比")
+    month, got = industry_jp.parse_jsim(text)
+    assert month == pd.Timestamp(2026, 5, 1)
+    assert got == {"jsim_total": 10036.02, "jsim_domestic": 8302.19, "jsim_foreign": 1733.83}
+
+
+def test_tungsten_article():
+    text = ("2026年10月8日钨市场行情 国庆节后首个交易日… 钨精矿市场上，55%品位主流议价区间下探至33-36万元/标吨。"
+            "仲钨酸铵（APT）市场上，对外报价在53-55万元/吨左右。钨粉价格区间约820-850元/千克，碳化钨粉局部报价跌破800元/千克。"
+            "70钨铁价格暂报58万元/吨左右。欧洲APT报价2700-2900美元/吨度（折合人民币160.2-172万元/吨）")
+    day, v = ctia.parse_article(text)
+    assert day == pd.Timestamp(2026, 10, 8)
+    assert v == {"w_concentrate": 34.5, "w_apt": 54.0, "w_powder": 835.0, "w_ferro": 58.0, "w_apt_eu": 2800.0}
+
+
+def test_tungsten_non_daily_article_is_skipped():
+    assert ctia.parse_article("2026年9月中国钼制品价格走势全图及评述") is None

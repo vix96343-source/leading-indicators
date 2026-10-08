@@ -72,11 +72,15 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
 <div class="wrap">
   <div class="top">
     <h1>先行指標ダッシュボード</h1>
+<<<<<<< Updated upstream
     <span class="meta">更新 2026-10-08 18:46 ／ 公開版</span>
+=======
+    <span class="meta">更新 2026-10-08 18:59 ／ 公開版</span>
+>>>>>>> Stashed changes
     <span class="spacer"></span>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
   </div>
-  <p class="summary">追い風<b class="up">17</b> 逆風<b class="down">5</b> 横ばい・中立<b>11</b></p>
+  <p class="summary">追い風<b class="up">21</b> 逆風<b class="down">16</b> 横ばい・中立<b>17</b></p>
 
   <div class="scroll">
     <table>
@@ -85,7 +89,7 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
       </thead>
       <tbody>
       
-        <tr class="g"><td colspan="7" title="メモリ大手の株価。TrendForce の価格は規約上公開できないため、手元の全指標版（local/index.html）にだけ載せている。">半導体市場</td></tr>
+        <tr class="g"><td colspan="7" title="SOX とメモリ大手の株価。TrendForce・SEAJ は規約上公開できないため手元の全指標版（local/index.html）にだけ載せている。">業界：半導体</td></tr>
         
         
         <tr class="h"><td class="l"></td><td></td><td></td><td>1か月</td><td>3か月</td><td>1年</td><td></td></tr>
@@ -107,11 +111,47 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
           <td class="down">↓下落</td>
         </tr>
         
+        
+        <tr class="s">
+          <td class="l name" title="半導体サイクル → 日本の半導体・装置株"><a href="https://finance.yahoo.com/quote/%5ESOX" target="_blank" rel="noopener">フィラデルフィア半導体指数</a></td>
+          <td class="date">10/07</td>
+          <td>13,066<span class="unit"> pt</span></td>
+          <td class="up">+11.3%</td><td class="up">+3.9%</td><td class="up">+96.9%</td>
+          <td class="up">↑上昇</td>
+        </tr>
+        
       
-        <tr class="g"><td colspan="7" title="内閣府の機械受注・景気ウォッチャー・消費者態度指数と、日本の輸出。">国内景気</td></tr>
+        <tr class="g"><td colspan="7" title="工作機械・産業機械・機械受注（内閣府）。設備投資の先行指標。">業界：機械</td></tr>
         
         
         <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="ボイラ・化学機械・ポンプ・運搬機械など（日本産業機械工業会）"><a href="https://www.jsim.or.jp/statistical-data/" target="_blank" rel="noopener">産業機械受注 総額</a></td>
+          <td class="date">26/07</td>
+          <td>6,314<span class="unit"> 億円</span></td>
+          <td class="up">+32.9%</td><td class="up">+6.7pt</td><td class="down">-43.0%</td>
+          <td class="up">↑加速</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="国内のプラント・設備投資"><a href="https://www.jsim.or.jp/statistical-data/" target="_blank" rel="noopener">産業機械受注 内需</a></td>
+          <td class="date">26/07</td>
+          <td>3,927<span class="unit"> 億円</span></td>
+          <td class="up">+11.2%</td><td class="up">+9.4pt</td><td class="down">-16.2%</td>
+          <td class="up">↑加速</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="海外プラント案件（月ごとの振れが大きい）"><a href="https://www.jsim.or.jp/statistical-data/" target="_blank" rel="noopener">産業機械受注 外需</a></td>
+          <td class="date">26/07</td>
+          <td>2,387<span class="unit"> 億円</span></td>
+          <td class="up">+95.6%</td><td class="down">-0.2pt</td><td class="down">-62.6%</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
         
         <tr class="s">
           <td class="l name" title="国内設備投資の代表的な先行指標（季調値）→ FA・機械・建機"><a href="https://www.esri.cao.go.jp/jp/stat/juchu/juchu.html" target="_blank" rel="noopener">コア機械受注（船舶・電力除く民需）</a></td>
@@ -130,51 +170,6 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
           <td class="up">↑加速</td>
         </tr>
         
-        
-        <tr class="h"><td class="l"></td><td></td><td></td><td>前月比</td><td>3か月</td><td>前年比</td><td></td></tr>
-        
-        <tr class="s">
-          <td class="l name" title="小売・飲食・タクシー・企業などの現場の2〜3か月先の見方（50が中立）。毎月8日前後に前月分"><a href="https://www5.cao.go.jp/keizai3/watcher_index.html" target="_blank" rel="noopener">景気ウォッチャー 先行き判断DI</a></td>
-          <td class="date">26/09</td>
-          <td>47.40<span class="unit"> DI</span></td>
-          <td class="down">-0.9pt</td><td class="up">+1.7pt</td><td class="down">-1.1pt</td>
-          <td class="flat">→横ばい</td>
-        </tr>
-        
-        
-        <tr class="s">
-          <td class="l name" title="現場の景況感（50が中立）"><a href="https://www5.cao.go.jp/keizai3/watcher_index.html" target="_blank" rel="noopener">景気ウォッチャー 現状判断DI</a></td>
-          <td class="date">26/09</td>
-          <td>47.00<span class="unit"> DI</span></td>
-          <td class="up">+0.6pt</td><td class="up">+3.0pt</td><td class="down">-0.1pt</td>
-          <td class="up">↑上昇</td>
-        </tr>
-        
-        
-        <tr class="s">
-          <td class="l name" title="景気動向指数の先行系列の1つ。内需・小売"><a href="https://www.esri.cao.go.jp/jp/stat/shouhi/shouhi.html" target="_blank" rel="noopener">消費者態度指数</a></td>
-          <td class="date">26/08</td>
-          <td>35.50<span class="unit"> 指数</span></td>
-          <td class="up">+0.6pt</td><td class="up">+1.9pt</td><td class="up">+0.6pt</td>
-          <td class="flat">→横ばい</td>
-        </tr>
-        
-        
-        <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
-        
-        <tr class="s">
-          <td class="l name" title="外需全体（ドル建て、発表は約2か月遅れ）"><a href="https://fred.stlouisfed.org/series/XTEXVA01JPM667S" target="_blank" rel="noopener">日本 輸出額</a></td>
-          <td class="date">26/06</td>
-          <td>656.8<span class="unit"> 億ドル</span></td>
-          <td class="up">+5.8%</td><td class="up">+1.8pt</td><td class="down">-1.1%</td>
-          <td class="flat">→横ばい</td>
-        </tr>
-        
-      
-        <tr class="g"><td colspan="7" title="月次統計。前年比と、その3か月前からの変化（加速/減速）を見る。">業界統計（受注・出荷）</td></tr>
-        
-        
-        <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
         
         <tr class="s">
           <td class="l name" title="設備投資の先行指標 → ファナック・DMG森精機・オークマ・THK"><a href="https://www.jmtba.or.jp/statistics/" target="_blank" rel="noopener">工作機械受注 総額</a></td>
@@ -221,6 +216,257 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
         </tr>
         
       
+        <tr class="g"><td colspan="7" title="新設住宅着工（国交省）と米住宅着工許可、木材価格。">業界：住宅・建設</td></tr>
+        
+        
+        <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="住宅メーカー・建材・住設（国交省、原数値）"><a href="https://www.mlit.go.jp/sogoseisaku/jouhouka/sosei_jouhouka_tk4_000002.html" target="_blank" rel="noopener">新設住宅着工 総戸数</a></td>
+          <td class="date">26/08</td>
+          <td>63,974<span class="unit"> 戸</span></td>
+          <td class="up">+6.1%</td><td class="down">-27.7pt</td><td class="down">-3.7%</td>
+          <td class="down">↓減速</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="注文住宅 → ハウスメーカー"><a href="https://www.mlit.go.jp/sogoseisaku/jouhouka/sosei_jouhouka_tk4_000002.html" target="_blank" rel="noopener">新設住宅着工 持家</a></td>
+          <td class="date">26/08</td>
+          <td>17,713<span class="unit"> 戸</span></td>
+          <td class="up">+1.0%</td><td class="down">-30.7pt</td><td class="down">-0.1%</td>
+          <td class="down">↓減速</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="アパート建築 → 賃貸住宅メーカー"><a href="https://www.mlit.go.jp/sogoseisaku/jouhouka/sosei_jouhouka_tk4_000002.html" target="_blank" rel="noopener">新設住宅着工 貸家</a></td>
+          <td class="date">26/08</td>
+          <td>28,309<span class="unit"> 戸</span></td>
+          <td class="up">+6.5%</td><td class="down">-26.8pt</td><td class="down">-6.1%</td>
+          <td class="down">↓減速</td>
+        </tr>
+        
+        
+        <tr class="h"><td class="l"></td><td></td><td></td><td>1か月</td><td>3か月</td><td>1年</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="住宅需要と建材コスト"><a href="https://finance.yahoo.com/quote/LBR%3DF" target="_blank" rel="noopener">木材先物（米国）</a></td>
+          <td class="date">10/07</td>
+          <td>517.5<span class="unit"> USD</span></td>
+          <td class="down">-9.0%</td><td class="down">-17.5%</td><td class="down">-14.1%</td>
+          <td class="down">↓下落</td>
+        </tr>
+        
+        
+        <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="住宅投資の先行指標 → 建材・住設"><a href="https://fred.stlouisfed.org/series/PERMIT" target="_blank" rel="noopener">米 住宅着工許可件数</a></td>
+          <td class="date">26/08</td>
+          <td>1,403<span class="unit"> 千戸(年率)</span></td>
+          <td class="up">+4.2%</td><td class="up">+4.6pt</td><td class="down">-2.1%</td>
+          <td class="up">↑加速</td>
+        </tr>
+        
+      
+        <tr class="g"><td colspan="7" title="粗鋼生産（鉄鋼連盟）と訪日外客数（JNTO）。">業界：鉄鋼・観光</td></tr>
+        
+        
+        <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="鉄鋼需要（自動車・建設・造船）→ 高炉・電炉"><a href="https://www.jisf.or.jp/data/seisan/" target="_blank" rel="noopener">粗鋼生産</a></td>
+          <td class="date">26/08</td>
+          <td>6,664<span class="unit"> 千トン</span></td>
+          <td class="up">+0.4%</td><td class="flat">—</td><td class="up">+0.4%</td>
+          <td class="flat">—</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="インバウンド → 百貨店・ホテル・鉄道・空運"><a href="https://www.jnto.go.jp/statistics/data/visitors-statistics/" target="_blank" rel="noopener">訪日外客数 総数</a></td>
+          <td class="date">26/08</td>
+          <td>3,098,900<span class="unit"> 人</span></td>
+          <td class="down">-9.6%</td><td class="down">-6.0pt</td><td class="down">-10.0%</td>
+          <td class="down">↓減速</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="中国人客 → 化粧品・百貨店"><a href="https://www.jnto.go.jp/statistics/data/visitors-statistics/" target="_blank" rel="noopener">訪日外客数 中国</a></td>
+          <td class="date">26/08</td>
+          <td>418,000<span class="unit"> 人</span></td>
+          <td class="down">-59.0%</td><td class="up">+1.4pt</td><td class="down">-2.4%</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
+      
+        <tr class="g"><td colspan="7" title="貴金属・ベースメタル・鉄鋼原料・エネルギーの先物と、レアメタル関連 ETF。タングステン価格は規約上公開できないため手元版にだけ載せている。">素材価格</td></tr>
+        
+        
+        <tr class="h"><td class="l"></td><td></td><td></td><td>1か月</td><td>3か月</td><td>1年</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="安全資産・インフレヘッジ → 非鉄・資源"><a href="https://finance.yahoo.com/quote/GC%3DF" target="_blank" rel="noopener">金</a></td>
+          <td class="date">10/08</td>
+          <td>4,146<span class="unit"> USD/oz</span></td>
+          <td class="down">-6.6%</td><td class="up">+0.1%</td><td class="up">+1.8%</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="貴金属＋太陽電池・電子部品の工業需要"><a href="https://finance.yahoo.com/quote/SI%3DF" target="_blank" rel="noopener">銀</a></td>
+          <td class="date">10/08</td>
+          <td>59.12<span class="unit"> USD/oz</span></td>
+          <td class="down">-10.8%</td><td class="down">-2.1%</td><td class="up">+21.5%</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="自動車触媒・水素"><a href="https://finance.yahoo.com/quote/PL%3DF" target="_blank" rel="noopener">プラチナ</a></td>
+          <td class="date">10/08</td>
+          <td>1,656<span class="unit"> USD/oz</span></td>
+          <td class="down">-10.4%</td><td class="up">+2.3%</td><td class="down">-1.3%</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="ガソリン車触媒"><a href="https://finance.yahoo.com/quote/PA%3DF" target="_blank" rel="noopener">パラジウム</a></td>
+          <td class="date">10/08</td>
+          <td>1,130<span class="unit"> USD/oz</span></td>
+          <td class="down">-16.6%</td><td class="down">-9.1%</td><td class="down">-22.3%</td>
+          <td class="down">↓下落</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="軽量化素材"><a href="https://finance.yahoo.com/quote/ALI%3DF" target="_blank" rel="noopener">アルミ</a></td>
+          <td class="date">10/08</td>
+          <td>3,205<span class="unit"> USD/t</span></td>
+          <td class="down">-8.0%</td><td class="down">-8.1%</td><td class="up">+19.5%</td>
+          <td class="down">↓下落</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="中国の鉄鋼生産 → 商社・海運"><a href="https://finance.yahoo.com/quote/TIO%3DF" target="_blank" rel="noopener">鉄鉱石（SGX）</a></td>
+          <td class="date">10/07</td>
+          <td>91.13<span class="unit"> USD/t</span></td>
+          <td class="down">-8.5%</td><td class="down">-7.8%</td><td class="down">-12.6%</td>
+          <td class="down">↓下落</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="鋼材市況"><a href="https://finance.yahoo.com/quote/HRC%3DF" target="_blank" rel="noopener">熱延コイル（米国）</a></td>
+          <td class="date">10/08</td>
+          <td>1,319<span class="unit"> USD/st</span></td>
+          <td class="up">+7.2%</td><td class="up">+14.2%</td><td class="up">+62.2%</td>
+          <td class="up">↑上昇</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="エネルギー・化学原料"><a href="https://finance.yahoo.com/quote/NG%3DF" target="_blank" rel="noopener">天然ガス（米国）</a></td>
+          <td class="date">10/08</td>
+          <td>3.25<span class="unit"> USD/MMBtu</span></td>
+          <td class="up">+11.4%</td><td class="up">+7.9%</td><td class="down">-2.5%</td>
+          <td class="up">↑上昇</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="電池素材の代替指標"><a href="https://finance.yahoo.com/quote/LIT" target="_blank" rel="noopener">リチウム関連ETF (LIT)</a></td>
+          <td class="date">10/07</td>
+          <td>69.51<span class="unit"> USD</span></td>
+          <td class="down">-6.3%</td><td class="down">-3.6%</td><td class="up">+19.1%</td>
+          <td class="down">↓下落</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="原子力需要の代替指標"><a href="https://finance.yahoo.com/quote/URA" target="_blank" rel="noopener">ウラン関連ETF (URA)</a></td>
+          <td class="date">10/07</td>
+          <td>39.93<span class="unit"> USD</span></td>
+          <td class="down">-13.3%</td><td class="down">-4.2%</td><td class="down">-18.3%</td>
+          <td class="down">↓下落</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="レアアース・レアメタルの代替指標"><a href="https://finance.yahoo.com/quote/REMX" target="_blank" rel="noopener">レアアース関連ETF (REMX)</a></td>
+          <td class="date">10/07</td>
+          <td>61.88<span class="unit"> USD</span></td>
+          <td class="down">-18.2%</td><td class="down">-22.3%</td><td class="down">-14.6%</td>
+          <td class="down">↓下落</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="「ドクター・カッパー」世界景気の体温計"><a href="https://finance.yahoo.com/quote/HG%3DF" target="_blank" rel="noopener">銅先物</a></td>
+          <td class="date">10/08</td>
+          <td>6.67<span class="unit"> USD/lb</span></td>
+          <td class="down">-1.0%</td><td class="up">+7.3%</td><td class="up">+32.2%</td>
+          <td class="up">↑上昇</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="需要の強さとコスト両面"><a href="https://finance.yahoo.com/quote/CL%3DF" target="_blank" rel="noopener">WTI原油先物</a></td>
+          <td class="date">10/08</td>
+          <td>91.89<span class="unit"> USD</span></td>
+          <td class="down">-1.2%</td><td class="up">+27.5%</td><td class="up">+46.9%</td>
+          <td class="flat">↑上昇</td>
+        </tr>
+        
+      
+        <tr class="g"><td colspan="7" title="内閣府の景気ウォッチャー・消費者態度指数と、日本の輸出。">国内景気</td></tr>
+        
+        
+        <tr class="h"><td class="l"></td><td></td><td></td><td>前月比</td><td>3か月</td><td>前年比</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="小売・飲食・タクシー・企業などの現場の2〜3か月先の見方（50が中立）。毎月8日前後に前月分"><a href="https://www5.cao.go.jp/keizai3/watcher_index.html" target="_blank" rel="noopener">景気ウォッチャー 先行き判断DI</a></td>
+          <td class="date">26/09</td>
+          <td>47.40<span class="unit"> DI</span></td>
+          <td class="down">-0.9pt</td><td class="up">+1.7pt</td><td class="down">-1.1pt</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="現場の景況感（50が中立）"><a href="https://www5.cao.go.jp/keizai3/watcher_index.html" target="_blank" rel="noopener">景気ウォッチャー 現状判断DI</a></td>
+          <td class="date">26/09</td>
+          <td>47.00<span class="unit"> DI</span></td>
+          <td class="up">+0.6pt</td><td class="up">+3.0pt</td><td class="down">-0.1pt</td>
+          <td class="up">↑上昇</td>
+        </tr>
+        
+        
+        <tr class="s">
+          <td class="l name" title="景気動向指数の先行系列の1つ。内需・小売"><a href="https://www.esri.cao.go.jp/jp/stat/shouhi/shouhi.html" target="_blank" rel="noopener">消費者態度指数</a></td>
+          <td class="date">26/08</td>
+          <td>35.50<span class="unit"> 指数</span></td>
+          <td class="up">+0.6pt</td><td class="up">+1.9pt</td><td class="up">+0.6pt</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
+        
+        <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
+        
+        <tr class="s">
+          <td class="l name" title="外需全体（ドル建て、発表は約2か月遅れ）"><a href="https://fred.stlouisfed.org/series/XTEXVA01JPM667S" target="_blank" rel="noopener">日本 輸出額</a></td>
+          <td class="date">26/06</td>
+          <td>656.8<span class="unit"> 億ドル</span></td>
+          <td class="up">+5.8%</td><td class="up">+1.8pt</td><td class="down">-1.1%</td>
+          <td class="flat">→横ばい</td>
+        </tr>
+        
+      
         <tr class="g"><td colspan="7" title="海外の輸出・生産（FRED）。">海外景気</td></tr>
         
         
@@ -244,7 +490,7 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
         </tr>
         
       
-        <tr class="g"><td colspan="7" title="米国の受注・住宅・雇用・企業景況感（FRED）。">米国景気</td></tr>
+        <tr class="g"><td colspan="7" title="米国の受注・雇用・企業景況感（FRED）。">米国景気</td></tr>
         
         
         <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
@@ -296,17 +542,6 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
         </tr>
         
         
-        <tr class="h"><td class="l"></td><td></td><td></td><td>前年比</td><td>加速</td><td>前月比</td><td></td></tr>
-        
-        <tr class="s">
-          <td class="l name" title="住宅投資の先行指標 → 建材・住設"><a href="https://fred.stlouisfed.org/series/PERMIT" target="_blank" rel="noopener">米 住宅着工許可件数</a></td>
-          <td class="date">26/08</td>
-          <td>1,403<span class="unit"> 千戸(年率)</span></td>
-          <td class="up">+4.2%</td><td class="up">+4.6pt</td><td class="down">-2.1%</td>
-          <td class="up">↑加速</td>
-        </tr>
-        
-        
         <tr class="h"><td class="l"></td><td></td><td></td><td>1か月</td><td>3か月</td><td>1年</td><td></td></tr>
         
         <tr class="s">
@@ -329,12 +564,13 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
         </tr>
         
       
-        <tr class="g"><td colspan="7" title="日次の価格・金利。1か月・3か月の変化と、過去1年のレンジ内の位置を見る。">市場ベース</td></tr>
+        <tr class="g"><td colspan="7" title="日次の株価指数・金利・為替。1か月・3か月の変化を見る。">市場ベース</td></tr>
         
         
         <tr class="h"><td class="l"></td><td></td><td></td><td>1か月</td><td>3か月</td><td>1年</td><td></td></tr>
         
         <tr class="s">
+<<<<<<< Updated upstream
           <td class="l name" title="半導体サイクル → 日本の半導体・装置株"><a href="https://finance.yahoo.com/quote/%5ESOX" target="_blank" rel="noopener">フィラデルフィア半導体指数</a></td>
           <td class="date">10/07</td>
           <td>13,066<span class="unit"> pt</span></td>
@@ -353,6 +589,8 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
         
         
         <tr class="s">
+=======
+>>>>>>> Stashed changes
           <td class="l name" title="バルチック海運指数の代替。海運株・資源需要"><a href="https://finance.yahoo.com/quote/BDRY" target="_blank" rel="noopener">ドライバルク運賃ETF (BDRY)</a></td>
           <td class="date">10/07</td>
           <td>14.43<span class="unit"> USD</span></td>
@@ -407,6 +645,7 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
         
         
         <tr class="s">
+<<<<<<< Updated upstream
           <td class="l name" title="需要の強さとコスト両面"><a href="https://finance.yahoo.com/quote/CL%3DF" target="_blank" rel="noopener">WTI原油先物</a></td>
           <td class="date">10/08</td>
           <td>91.71<span class="unit"> USD</span></td>
@@ -420,6 +659,12 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
           <td class="date">10/08</td>
           <td>158.2<span class="unit"> 円</span></td>
           <td class="up">+2.8%</td><td class="down">-2.7%</td><td class="up">+4.0%</td>
+=======
+          <td class="l name" title="円安は輸出株の採算改善"><a href="https://finance.yahoo.com/quote/JPY%3DX" target="_blank" rel="noopener">ドル円</a></td>
+          <td class="date">10/08</td>
+          <td>158.3<span class="unit"> 円</span></td>
+          <td class="up">+2.9%</td><td class="down">-2.6%</td><td class="up">+4.1%</td>
+>>>>>>> Stashed changes
           <td class="flat">→横ばい</td>
         </tr>
         
@@ -437,7 +682,11 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
     <table>
       <tbody>
       
+<<<<<<< Updated upstream
       <tr><td>Yahoo Finance</td><td class="ok">正常</td><td>2026-10-08 18:39</td><td></td></tr>
+=======
+      <tr><td>Yahoo Finance</td><td class="ok">正常</td><td>2026-10-08 18:57</td><td></td></tr>
+>>>>>>> Stashed changes
       
       <tr><td>日本工作機械工業会</td><td class="ok">正常</td><td>2026-10-08 18:46</td><td></td></tr>
       
@@ -446,6 +695,8 @@ footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
       <tr><td>内閣府</td><td class="ok">正常</td><td>2026-10-08 18:39</td><td></td></tr>
       
       <tr><td>内閣府（景気ウォッチャー・消費動向）</td><td class="ok">正常</td><td>2026-10-08 18:39</td><td></td></tr>
+      
+      <tr><td>業界統計（国交省・鉄鋼連盟・産機工・JNTO）</td><td class="ok">正常</td><td>2026-10-08 18:57</td><td></td></tr>
       
       </tbody>
     </table>
