@@ -53,6 +53,19 @@ td.stale { color: var(--muted); }
   thead th, tbody td { padding: 5px 5px; }
   td.name { max-width: 7em; }
 }
+.summary { color: var(--muted); font-size: 12.5px; margin: 0 0 8px; }
+.summary b { font-size: 15px; margin: 0 2px; }
+h2 { font-size: 14px; margin: 18px 0 6px; }
+tr.h td { background: var(--head); color: var(--muted); font-size: 11.5px; padding: 3px 8px; text-align: right; }
+tr.h td.l { text-align: left; }
+td.unit { color: var(--muted); font-size: 11px; padding-left: 2px; }
+td.date { color: var(--muted); font-size: 12px; }
+td.title { white-space: normal; min-width: 16em; }
+.stale-mark { color: var(--name); font-size: 11px; }
+footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
+footer table { width: auto; }
+footer td, footer th { text-align: left; padding: 3px 10px 3px 0; border: 0; border-top: 1px solid var(--border); background: transparent; white-space: normal; }
+footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
 </style>
 </head>
 <body>
@@ -212,11 +225,11 @@ td.stale { color: var(--muted); }
 <script>
 (function () {
   var root = document.documentElement, btn = document.getElementById('themeBtn');
-  try { var t = localStorage.getItem('stocksTheme'); if (t) root.setAttribute('data-theme', t); } catch (e) {}
+  try { var t = localStorage.getItem('boardTheme'); if (t) root.setAttribute('data-theme', t); } catch (e) {}
   btn.addEventListener('click', function () {
     var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     root.setAttribute('data-theme', next);
-    try { localStorage.setItem('stocksTheme', next); } catch (e) {}
+    try { localStorage.setItem('boardTheme', next); } catch (e) {}
   });
 })();
 </script>

@@ -50,31 +50,35 @@ def fmt(v, unit="", signed=False):
     return fmt_num(v)
 
 
-def card(ind: dict, today: pd.Timestamp) -> dict:
+# 表の変化率 3 列に何を出すか（指標の種類ごと）
+COLUMNS = {
+    "daily": ("1か月", "3か月", "1年"),
+    "yoy": ("前年比", "加速", "前月比"),
+    "level": ("前月比", "3か月", "前年比"),
+}
+TONE_CLASS = {"good": "up", "bad": "down", "neutral": "flat"}
+
+
+def row(ind: dict, today: pd.Timestamp) -> dict:
     s = store.load(ind["id"]) * ind.get("scale", 1)
     a = analyze.summarize(ind, s, today)
-    recent = []
-    for d, v in a.get("recent", []):
-        y = a.get("recent_yoy", {}).get(d)
-        recent.append({"date": d.strftime("%Y-%m" if ind["freq"] == "monthly" else "%Y-%m-%d"),
-                       "value": fmt(v), "yoy": fmt(y, "%", signed=True) if y is not None else ""})
+    kind = "daily" if ind["freq"] == "daily" else "yoy" if ind.get("yoy") else "level"
+    by_label = {l: (v, u) for l, v, u in a["metrics"]}
+    cols = []
+    for label in COLUMNS[kind]:
+        v, u = by_label.get(label, (None, ""))
+        cols.append({"value": fmt(v, u, signed=True), "cls": _cls(v)})
+    labels = YOY_DIRECTION_LABEL if kind == "yoy" else DIRECTION_LABEL
     return {
         "id": ind["id"], "name": ind["name"], "lead": ind.get("lead", ""), "unit": ind.get("unit", ""),
-        "freq": "日次" if ind["freq"] == "daily" else "月次",
-        "latest": fmt(a["latest"]),
-        "latest_date": a["latest_date"].strftime("%Y-%m" if ind["freq"] == "monthly" else "%Y-%m-%d") if a["latest"] is not None else "",
+        "kind": kind,
+        "value": fmt(a["latest"]),
+        "date": a["latest_date"].strftime("%y/%m" if ind["freq"] == "monthly" else "%m/%d") if a["latest"] is not None else "—",
         "stale": a.get("stale", False),
-        "n": a["n"],
-        "direction": a["direction"], "arrow": ARROW[a["direction"]], "direction_label": (YOY_DIRECTION_LABEL if ind.get("yoy") else DIRECTION_LABEL)[a["direction"]],
-        "tone": a["tone"], "good": ind.get("good", "neutral"),
-        "metrics": [{"label": l, "value": fmt(v, u, signed=True), "sign": "pos" if (v or 0) > 0 else "neg" if (v or 0) < 0 else ""}
-                    for l, v, u in a["metrics"]],
-        "has_metrics": any(v is not None for _, v, _ in a["metrics"]),
-        "range_pos": a.get("range_pos"),
-        "recent": recent,
-        "show_yoy_col": ind["freq"] == "monthly" and ind.get("yoy"),
+        "cols": cols,
+        "judge": "—" if a["direction"] == "none" else f'{ARROW[a["direction"]]}{labels[a["direction"]]}',
+        "judge_cls": TONE_CLASS.get(a["tone"], "flat"),
         "source": SOURCE_LABEL[ind["source"]], "source_url": source_url(ind),
-        "accumulating": ind["source"] in ("trendforce",) and a["n"] < 60,
     }
 
 
@@ -117,20 +121,18 @@ def build(public: bool = False) -> str:
     cfg = load_config()
     today = today_jst()
     inds = [i for i in cfg["indicators"] if not (public and i.get("restricted"))]
-    cards = {i["id"]: card(i, today) for i in inds}
+    rows = {i["id"]: row(i, today) for i in inds}
 
     groups = []
     for g in cfg["groups"]:
-        cs = [cards[i["id"]] for i in inds if i["group"] == g["id"]]
-        if cs:
+        rs = [rows[i["id"]] for i in inds if i["group"] == g["id"]]
+        if rs:
             note = g.get("public_note", g["note"]) if public else g["note"]
-            groups.append({**g, "note": note, "cards": cs})
+            groups.append({**g, "note": note, "rows": rs})
 
-    tally = {"good": 0, "bad": 0, "other": 0}
-    for c in cards.values():
-        tally[c["tone"] if c["tone"] in ("good", "bad") else "other"] += 1
-    movers = sorted((c for c in cards.values() if c["tone"] in ("good", "bad")),
-                    key=lambda c: (c["tone"] != "bad", c["name"]))
+    tally = {"up": 0, "down": 0, "flat": 0}
+    for r in rows.values():
+        tally[r["judge_cls"]] += 1
 
     comp_cfg = cfg.get("companies", {})
     disc = tdnet.load()
@@ -147,7 +149,7 @@ def build(public: bool = False) -> str:
     html = env.get_template("index.html.j2").render(
         title=cfg["site"]["title"],
         generated_at=datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
-        groups=groups, tally=tally, movers=movers,
+        groups=groups, tally=tally, columns=COLUMNS,
         disclosures=disclosures, watch_names=watch_names,
         status=status_rows, public=public,
     )
