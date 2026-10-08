@@ -2,7 +2,6 @@
 # 指標の追加・削除はここだけで行う（コード変更不要）。
 #
 # indicators[].source ごとの params:
-#   trendforce: page (dram_spot / flash_spot), item (表の品目名), field (列名)
 #   yfinance:   ticker
 #   fred:       series (FRED の系列ID)
 #   jmtba:      field (total / domestic / foreign / china / elec_precision)
@@ -19,10 +18,10 @@ site:
   timezone: Asia/Tokyo
 
 groups:
-  - id: memory
-    name: メモリ価格
-    note: TrendForce のスポット価格。履歴はこのツールが毎営業日取得して蓄積する（取得開始日より前は無い）。
-    public_note: メモリ大手の株価。スポット価格（TrendForce）は転載制限のため公開版には載せていない。
+  - id: semi
+    name: 半導体市場
+    note: TrendForce の DRAM・NAND 価格（全品目）とメモリ大手の株価。TrendForce の価格履歴はこのツールが毎営業日取得して蓄積する。
+    public_note: メモリ大手の株価。TrendForce の価格は規約上公開できないため、手元の全指標版（local/index.html）にだけ載せている。
   - id: industry
     name: 業界統計（受注・出荷）
     note: 月次統計。前年比と、その3か月前からの変化（加速/減速）を見る。
@@ -33,60 +32,15 @@ groups:
     name: 市場ベース
     note: 日次の価格・金利。1か月・3か月の変化と、過去1年のレンジ内の位置を見る。
 
+# TrendForce の DRAM・NAND 価格表は、ページ上の全品目を自動で取る（品目の指定は不要）。
+# 規約上公開できないため --public では取得も表示もしない。
+trendforce:
+  group: semi
+
 indicators:
-  # ── メモリ価格 ─────────────────────────────────────────────
-  - id: dram_ddr5_16g
-    group: memory
-    name: DDR5 16Gb スポット
-    source: trendforce
-    restricted: true   # TrendForce の価格表。公開サイトでは除外
-    params: {page: dram_spot, item: "DDR5 16Gb (2Gx8) 4800/5600", field: "Session Average"}
-    unit: USD
-    freq: daily
-    good: up
-    lead: メモリ市況 → キオクシア・SKハイニックス・マイクロン、後工程装置
-  - id: dram_ddr4_16g
-    group: memory
-    name: DDR4 16Gb スポット
-    source: trendforce
-    restricted: true   # TrendForce の価格表。公開サイトでは除外
-    params: {page: dram_spot, item: "DDR4 16Gb (2Gx8) 3200", field: "Session Average"}
-    unit: USD
-    freq: daily
-    good: up
-    lead: 旧世代DRAM。減産・EOLの需給を反映しやすい
-  - id: dram_ddr4_8g
-    group: memory
-    name: DDR4 8Gb スポット
-    source: trendforce
-    restricted: true   # TrendForce の価格表。公開サイトでは除外
-    params: {page: dram_spot, item: "DDR4 8Gb (1Gx8) 3200", field: "Session Average"}
-    unit: USD
-    freq: daily
-    good: up
-    lead: 汎用DRAMの代表品目
-  - id: nand_512g_tlc
-    group: memory
-    name: NAND 512Gb TLC ウェハ
-    source: trendforce
-    restricted: true   # TrendForce の価格表。公開サイトでは除外
-    params: {page: flash_spot, item: "512Gb TLC", field: "Session Average"}
-    unit: USD
-    freq: daily
-    good: up
-    lead: NAND市況 → キオクシア・WD/サンディスク
-  - id: nand_256g_tlc
-    group: memory
-    name: NAND 256Gb TLC ウェハ
-    source: trendforce
-    restricted: true   # TrendForce の価格表。公開サイトでは除外
-    params: {page: flash_spot, item: "256Gb TLC", field: "Session Average"}
-    unit: USD
-    freq: daily
-    good: up
-    lead: NAND市況
+  # ── 半導体市場 ─────────────────────────────────────────────
   - id: mu
-    group: memory
+    group: semi
     name: マイクロン 株価
     source: yfinance
     params: {ticker: MU}
@@ -95,7 +49,7 @@ indicators:
     good: up
     lead: メモリ市況の市場評価
   - id: hynix
-    group: memory
+    group: semi
     name: SKハイニックス 株価
     source: yfinance
     params: {ticker: "000660.KS"}
@@ -296,27 +250,3 @@ indicators:
     good: neutral
     lead: 円安は輸出株の採算改善
 
-# ── 注目銘柄の一覧ページ（docs/stocks.html） ───────────────────────
-# 株価は yfinance（<code>.T）で毎営業日更新。q_yoy / accel は q-accel スクリーニングの結果（as_of 時点）を手で転記。
-#   q_yoy: 直近四半期の売上 前年同期比 %   accel: q_yoy − 直近4四半期合計の前年比（pt）
-stocks:
-  as_of: "2026-09-26"
-  groups:
-    - name: 半導体 前工程装置・部材
-      items:
-        - {code: "8035", name: 東京エレクトロン, q_yoy: 33.3, accel: 25.0}
-        - {code: "6855", name: 日本電子材料, q_yoy: 77.3, accel: 39.0}
-        - {code: "6890", name: フェローテック, q_yoy: 164.8, accel: 122.2}
-        - {code: "6235", name: オプトラン, q_yoy: 49.5, accel: 28.2}
-    - name: 設備投資・FA
-      items:
-        - {code: "6407", name: CKD, q_yoy: 35.5, accel: 24.5}
-        - {code: "6273", name: SMC, q_yoy: 35.4, accel: 19.7}
-        - {code: "6490", name: 日本ピラー工業, q_yoy: 35.6, accel: 25.5}
-        - {code: "6652", name: IDEC, q_yoy: 36.0, accel: 18.9}
-        - {code: "6866", name: 日置電機, q_yoy: 31.1, accel: 18.7}
-    - name: メモリ・後工程
-      items:
-        - {code: "285A", name: キオクシアHD, q_yoy: 415.5, accel: 283.4}
-        - {code: "6315", name: TOWA, q_yoy: 100.3, accel: 71.0}
-        - {code: "6875", name: メガチップス, q_yoy: 56.4, accel: 54.7}

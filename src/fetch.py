@@ -13,18 +13,12 @@ from .sources import fred, jmtba, seaj, trendforce, yf
 JST = ZoneInfo("Asia/Tokyo")
 CONFIG_PATH = store.ROOT / "indicators.yaml"
 STATUS_PATH = store.ROOT / "data" / "status.json"
-SOURCES = {"trendforce": trendforce, "fred": fred, "yfinance": yf, "jmtba": jmtba, "seaj": seaj}
+SOURCES = {"fred": fred, "yfinance": yf, "jmtba": jmtba, "seaj": seaj}
 
 
 def load_config() -> dict:
     with open(CONFIG_PATH, encoding="utf-8") as f:
         return yaml.safe_load(f)
-
-
-def stock_indicators(cfg: dict) -> list[dict]:
-    """indicators.yaml の stocks を yfinance 取得用の指標定義に変換する。"""
-    return [{"id": f"stock_{it['code']}", "params": {"ticker": f"{it['code']}.T"}}
-            for g in cfg["stocks"]["groups"] for it in g["items"]]
 
 
 def today_jst() -> pd.Timestamp:
@@ -57,20 +51,20 @@ def run(backfill: bool = False, only: list[str] | None = None, public: bool = Fa
             print(f"[{name}] 失敗: {e}")
             traceback.print_exc()
 
-    if (not only or "stocks" in only) and cfg.get("stocks"):
-        now = datetime.now(JST).isoformat(timespec="seconds")
-        inds = stock_indicators(cfg)
-        try:
-            got = yf.fetch(inds, today)
-            n = sum(store.upsert(k, v) for k, v in got.items())
-            missing = [i["params"]["ticker"] for i in inds if i["id"] not in got]
-            status["stocks"] = {"ok": True, "at": now, "updated_rows": n,
-                                "message": f"未取得: {', '.join(missing)}" if missing else ""}
-            print(f"[stocks] ok  更新 {n} 行")
-        except Exception as e:
-            status["stocks"] = {"ok": False, "at": now, "message": f"{type(e).__name__}: {e}"}
-            print(f"[stocks] 失敗: {e}")
 
+
+    # TrendForce は全品目を自動取得。規約上公開できないので --public では取らない
+    if cfg.get("trendforce") and not public and (not only or "trendforce" in only):
+        now = datetime.now(JST).isoformat(timespec="seconds")
+        try:
+            got = trendforce.fetch_all(today)
+            n = sum(store.upsert(k, v) for k, v in got.items())
+            items = sum(1 for k in got if not k.endswith("__chg"))
+            status["trendforce"] = {"ok": True, "at": now, "updated_rows": n, "message": f"{items} 品目"}
+            print(f"[trendforce] ok  {items} 品目")
+        except Exception as e:
+            status["trendforce"] = {"ok": False, "at": now, "message": f"{type(e).__name__}: {e}"}
+            print(f"[trendforce] 失敗: {e}")
 
     STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATUS_PATH.write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")

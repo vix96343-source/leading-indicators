@@ -57,13 +57,16 @@ def test_seaj_release_and_implied_prior_year():
     assert implied[pd.Timestamp(2025, 8, 1)] == 200000
 
 
-def test_trendforce_table():
-    rows = trendforce.parse_tables(read("trendforce_table.html"))
-    ddr5 = next(r for r in rows if r["Item"] == "DDR5 16Gb (2Gx8) 4800/5600")  # 連続空白は1つに正規化
-    assert ddr5["Session Average"] == pytest.approx(9.125)
-    ddr4 = next(r for r in rows if r["Item"] == "DDR4 8Gb (1Gx8) 3200")
-    assert ddr4["Daily High"] == pytest.approx(1234.5)
-    assert len(rows) == 2  # 見出しが Item でない表は無視
+def test_trendforce_all_items():
+    rows = trendforce.parse_page(read("trendforce_table.html"), "dram")
+    got = [(r["section"], r["item"], r["avg"], r["chg"]) for r in rows]
+    assert got == [
+        ("DRAM スポット", "DDR5 16Gb (2Gx8) 4800/5600", 9.125, 1.0),  # 連続空白は1つに正規化
+        ("DRAM スポット", "DDR4 8Gb (1Gx8) 3200", 6.5, -0.5),
+        ("DRAM 契約", "1TB SSD", 250.0, None),           # 名前だけの表は飛ばし、注記行も無視
+        ("DRAMモジュール スポット", "ACME X1 1 TB", 95.0, 0.0),  # Brand 表はブランド・シリーズ・容量で1品目
+    ]
+    assert rows[0]["id"] == "tf_dram_ddr5_16gb_2gx8_4800_5600"
 
 
 def test_fred_csv_skips_missing():

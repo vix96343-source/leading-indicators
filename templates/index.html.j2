@@ -15,7 +15,6 @@
     <h1>{{ title }}</h1>
     <span class="meta">更新 {{ generated_at }}{% if public %} ／ 公開版{% endif %}</span>
     <span class="spacer"></span>
-    <a href="stocks.html">注目銘柄 →</a>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
   </div>
   <p class="summary">追い風<b class="up">{{ tally.up }}</b> 逆風<b class="down">{{ tally.down }}</b> 横ばい・中立<b>{{ tally.flat }}</b></p>
@@ -29,8 +28,8 @@
       {% for g in groups %}
         <tr class="g"><td colspan="7" title="{{ g.note }}">{{ g.name }}</td></tr>
         {% for r in g.rows %}
-        {% if loop.first or r.kind != loop.previtem.kind %}
-        <tr class="h"><td class="l"></td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}<td></td></tr>
+        {% if loop.first or r.kind != loop.previtem.kind or r.section != loop.previtem.section %}
+        <tr class="h"><td class="l">{{ r.section or '' }}</td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}<td></td></tr>
         {% endif %}
         <tr class="s">
           <td class="l name" title="{{ r.lead }}"><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.name }}</a></td>

@@ -20,7 +20,7 @@ def main(argv=None):
     sub = p.add_subparsers(dest="cmd", required=True)
     f = sub.add_parser("fetch", help="データ取得")
     f.add_argument("--backfill", action="store_true", help="過去分をまとめて取得（初回用）")
-    f.add_argument("--only", help="カンマ区切りのソース名 (trendforce,fred,yfinance,jmtba,seaj,stocks)")
+    f.add_argument("--only", help="カンマ区切りのソース名 (trendforce,fred,yfinance,jmtba,seaj)")
     f.add_argument("--public", action="store_true", help="転載制限のある指標を取得しない")
     b = sub.add_parser("build", help="HTML生成")
     b.add_argument("--public", action="store_true", help="転載制限のある指標を除外して docs/ に出力")
