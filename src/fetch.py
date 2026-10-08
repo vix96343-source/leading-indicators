@@ -8,7 +8,7 @@ import pandas as pd
 import yaml
 
 from . import store
-from .sources import fred, jmtba, seaj, tdnet, trendforce, yf
+from .sources import fred, jmtba, seaj, trendforce, yf
 
 JST = ZoneInfo("Asia/Tokyo")
 CONFIG_PATH = store.ROOT / "indicators.yaml"
@@ -71,15 +71,6 @@ def run(backfill: bool = False, only: list[str] | None = None, public: bool = Fa
             status["stocks"] = {"ok": False, "at": now, "message": f"{type(e).__name__}: {e}"}
             print(f"[stocks] 失敗: {e}")
 
-    if not only or "tdnet" in only:
-        now = datetime.now(JST).isoformat(timespec="seconds")
-        try:
-            n = tdnet.update(cfg.get("companies", {}), today, backfill=backfill)
-            status["tdnet"] = {"ok": True, "at": now, "updated_rows": n, "message": ""}
-            print(f"[tdnet] ok  追加 {n} 件")
-        except Exception as e:
-            status["tdnet"] = {"ok": False, "at": now, "message": f"{type(e).__name__}: {e}"}
-            print(f"[tdnet] 失敗: {e}")
 
     STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATUS_PATH.write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")

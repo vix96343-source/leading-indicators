@@ -1,6 +1,6 @@
 # 先行指標ダッシュボード
 
-メモリ価格・業界統計（受注・出荷）・海外の景気先行指標・市場ベースの指標・個社の先行開示を 1 ページにまとめる。
+メモリ価格・業界統計（受注・出荷）・海外の景気先行指標・市場ベースの指標を 1 ページにまとめ、注目銘柄の株価ボードも出す。
 Python で取得 → 静的 HTML を生成 → GitHub Actions で平日 19:00 JST に自動更新 → GitHub Pages で閲覧（スマホ前提）。
 
 ## 載せている指標
@@ -13,7 +13,6 @@ Python で取得 → 静的 HTML を生成 → GitHub Actions で平日 19:00 JS
 | | 日本製半導体製造装置 販売高（3か月移動平均） | 日本半導体製造装置協会 | 月次（蓄積） |
 | 景気先行（海外） | 米コア資本財受注、米製造業新規受注、米半導体生産指数、韓国輸出、OECD CLI（日米） | FRED | 月次 |
 | 市場ベース | SOX、銅、ドライバルク運賃ETF、KOSPI、米10年債、米長短金利差、ドル円 | Yahoo Finance / FRED | 日次 |
-| 個社 | ウォッチリスト銘柄の月次・受注・出荷系開示、全社の「受注」開示 | TDnet | 日次 |
 
 指標の追加・削除・ウォッチリストの変更は `indicators.yaml` だけで行う。
 
@@ -57,8 +56,8 @@ TrendForce と SEAJ のデータは転載制限がある（SEAJ は「許可な�
 
 ```
 indicators.yaml ─┐
-                 ├─ src/fetch.py ── sources/{trendforce,jmtba,seaj,fred,yf,tdnet}.py
-                 │        └→ data/series/<id>.csv（日付で upsert）, data/company/disclosures.csv, data/status.json
+                 ├─ src/fetch.py ── sources/{trendforce,jmtba,seaj,fred,yf}.py
+                 │        └→ data/series/<id>.csv（日付で upsert）, data/status.json
                  └─ src/build.py ── analyze.py（変化率・前年比・加速）+ charts.py（SVG）
                           └→ docs/index.html（templates/index.html.j2）
 ```

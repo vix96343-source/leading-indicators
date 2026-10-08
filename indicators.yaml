@@ -296,24 +296,6 @@ indicators:
     good: neutral
     lead: 円安は輸出株の採算改善
 
-# ── 個社の先行開示（TDnet） ─────────────────────────────────
-# watchlist の銘柄は keywords のいずれかを含む開示をすべて表示。
-# universe_keywords は全上場企業から拾う（件数が多くなりすぎない語に限る）。
-companies:
-  lookback_days: 3          # 日次実行で遡る日数（backfill 時は 30）
-  keep_days: 120            # サイトに表示する期間
-  keywords: [月次, 受注, 出荷, 販売実績, 売上高速報, 営業状況, 速報]
-  universe_keywords: [受注]   # 大型受注のお知らせ・受注高の開示など
-  watchlist:
-    - {code: "6146", name: ディスコ}
-    - {code: "285A", name: キオクシアHD}
-    - {code: "6890", name: フェローテック}
-    - {code: "6315", name: TOWA}
-    - {code: "6141", name: DMG森精機}
-    - {code: "6103", name: オークマ}
-    - {code: "9962", name: ミスミグループ本社}
-    - {code: "3064", name: MonotaRO}
-
 # ── 注目銘柄の一覧ページ（docs/stocks.html） ───────────────────────
 # 株価は yfinance（<code>.T）で毎営業日更新。q_yoy / accel は q-accel スクリーニングの結果（as_of 時点）を手で転記。
 #   q_yoy: 直近四半期の売上 前年同期比 %   accel: q_yoy − 直近4四半期合計の前年比（pt）

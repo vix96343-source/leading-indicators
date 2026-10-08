@@ -49,25 +49,6 @@
     加速 = 前年比 − 3か月前の前年比（pt）。日付の * は更新が止まっている可能性。指標名から出所へ（長押し・カーソルで関連銘柄のメモ）。
   </p>
 
-  <h2 id="companies">個社の先行開示</h2>
-  <div class="scroll">
-    <table>
-      <thead><tr><th class="l">日付</th><th class="l">コード</th><th class="l">会社</th><th class="l">開示</th></tr></thead>
-      <tbody>
-      {% for d in disclosures %}
-        <tr class="s">
-          <td class="l date">{{ d.date[5:] }} {{ d.time }}</td>
-          <td class="l code">{{ d.code }}</td>
-          <td class="l name">{{ d.company }}</td>
-          <td class="l title">{% if d.match == 'watchlist' %}<span class="up">★</span> {% endif %}{% if d.url %}<a href="{{ d.url }}" target="_blank" rel="noopener">{{ d.title }}</a>{% else %}{{ d.title }}{% endif %}</td>
-        </tr>
-      {% else %}
-        <tr class="s"><td class="l" colspan="4">該当する開示はまだありません。</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <p class="note">TDnet から拾った開示。★ はウォッチリスト（{% for code, name in watch_names.items() %}{{ name }}{% if not loop.last %}・{% endif %}{% endfor %}）の月次・受注・出荷系、それ以外はタイトルに「受注」を含む開示。</p>
 
   <footer>
     <table>

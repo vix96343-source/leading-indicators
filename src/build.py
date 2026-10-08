@@ -8,12 +8,12 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import analyze, store
 from .fetch import JST, STATUS_PATH, load_config, today_jst
-from .sources import tdnet, trendforce
+from .sources import trendforce
 
 DOCS = store.ROOT / "docs"      # 公開版（GitHub Pages）
 LOCAL = store.ROOT / "local"    # 全指標版（転載制限のあるデータを含む。git 管理外）
 SOURCE_LABEL = {"trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
-                "jmtba": "日本工作機械工業会", "seaj": "日本半導体製造装置協会", "tdnet": "TDnet",
+                "jmtba": "日本工作機械工業会", "seaj": "日本半導体製造装置協会",
                 "stocks": "Yahoo Finance（注目銘柄）"}
 ARROW = {"up": "↑", "down": "↓", "flat": "→", "none": "・"}
 DIRECTION_LABEL = {"up": "上昇", "down": "下落", "flat": "横ばい", "none": "判定不可"}
@@ -134,13 +134,9 @@ def build(public: bool = False) -> str:
     for r in rows.values():
         tally[r["judge_cls"]] += 1
 
-    comp_cfg = cfg.get("companies", {})
-    disc = tdnet.load()
-    watch_names = {w["code"]: w["name"] for w in comp_cfg.get("watchlist", [])}
-    disclosures = disc.to_dict("records")
 
     status = json.loads(STATUS_PATH.read_text(encoding="utf-8")) if STATUS_PATH.exists() else {}
-    used = {i["source"] for i in inds} | {"tdnet", "stocks"}
+    used = {i["source"] for i in inds} | {"stocks"}
     status_rows = [{"name": SOURCE_LABEL.get(k, k), **v, "at": v.get("at", "")[:16].replace("T", " ")}
                    for k, v in status.items() if k in used]
 
@@ -150,7 +146,6 @@ def build(public: bool = False) -> str:
         title=cfg["site"]["title"],
         generated_at=datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
         groups=groups, tally=tally, columns=COLUMNS,
-        disclosures=disclosures, watch_names=watch_names,
         status=status_rows, public=public,
     )
     out_dir = DOCS if public else LOCAL

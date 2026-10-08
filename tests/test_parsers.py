@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.sources import fred, jmtba, seaj, tdnet, trendforce
+from src.sources import fred, jmtba, seaj, trendforce
 
 FX = Path(__file__).parent / "fixtures"
 
@@ -76,21 +76,3 @@ def test_fred_api_json():
                                          {"date": "2026-02-01", "value": "."}]})
     assert list(s.values) == [1.5]
 
-
-def test_tdnet_list_page_and_pager():
-    items, has_next = tdnet.parse_list_page(read("tdnet_list.html"), "2026-10-07", page=1)
-    assert items and items[0]["code"] == "576A"
-    assert items[0]["url"].startswith(tdnet.BASE)
-    assert has_next  # 「次へ」は div の onClick なので文字列で判定している
-
-
-def test_tdnet_select():
-    cfg = {"watchlist": [{"code": "6146"}], "keywords": ["速報"], "universe_keywords": ["受注"]}
-    items = [
-        {"code": "6146", "title": "出荷額の速報値に関するお知らせ"},
-        {"code": "6146", "title": "自己株式の取得"},
-        {"code": "1234", "title": "大型案件の受注に関するお知らせ"},
-        {"code": "1234", "title": "月次速報"},
-    ]
-    got = [(i["code"], i["match"]) for i in tdnet.select(items, cfg)]
-    assert got == [("6146", "watchlist"), ("1234", "keyword")]
