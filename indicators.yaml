@@ -6,6 +6,7 @@
 #   fred:       series (FRED の系列ID)
 #   jmtba:      field (total / domestic / foreign / china / elec_precision)
 #   seaj:       field (semi_jp)
+#   esri:       field (ci_leading / juchu_core / juchu_foreign / juchu_total)
 #
 # good: up = 上昇が関連銘柄の追い風 / down = 低下が追い風 / neutral = 方向で良し悪しを付けない
 # scale: 表示時に値へ掛ける倍率（単位換算）  stale_days: 「更新停止?」と出すまでの日数
@@ -22,12 +23,18 @@ groups:
     name: 半導体市場
     note: TrendForce の DRAM・NAND 価格（全品目）とメモリ大手の株価。TrendForce の価格履歴はこのツールが毎営業日取得して蓄積する。
     public_note: メモリ大手の株価。TrendForce の価格は規約上公開できないため、手元の全指標版（local/index.html）にだけ載せている。
+  - id: japan
+    name: 国内景気
+    note: 内閣府の景気動向指数・機械受注と、日本の輸出。
   - id: industry
     name: 業界統計（受注・出荷）
     note: 月次統計。前年比と、その3か月前からの変化（加速/減速）を見る。
   - id: macro
-    name: 景気先行（海外）
-    note: FRED（米セントルイス連銀）経由の月次統計。
+    name: 海外景気
+    note: OECD 景気先行指数と各国の輸出・生産（FRED）。
+  - id: us
+    name: 米国景気
+    note: 米国の受注・住宅・雇用・企業景況感（FRED）。
   - id: market
     name: 市場ベース
     note: 日次の価格・金利。1か月・3か月の変化と、過去1年のレンジ内の位置を見る。
@@ -57,6 +64,51 @@ indicators:
     freq: daily
     good: up
     lead: HBM・DRAM市況の市場評価
+
+  # ── 国内景気 ───────────────────────────────────────────────
+  - id: ci_leading
+    group: japan
+    name: 景気動向指数 CI先行
+    source: esri
+    params: {field: ci_leading}
+    unit: 2020年=100
+    freq: monthly
+    good: up
+    lead: 内閣府の先行11系列の合成。景気の山・谷に数か月先行
+  - id: juchu_core
+    group: japan
+    name: コア機械受注（船舶・電力除く民需）
+    source: esri
+    params: {field: juchu_core}
+    stale_days: 110    # 公表が約1.5か月遅れのため
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 国内設備投資の代表的な先行指標（季調値）→ FA・機械・建機
+  - id: juchu_foreign
+    group: japan
+    name: 機械受注 外需
+    source: esri
+    params: {field: juchu_foreign}
+    stale_days: 110    # 公表が約1.5か月遅れのため
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 海外からの機械受注（季調値）
+  - id: jp_exports
+    group: japan
+    name: 日本 輸出額
+    source: fred
+    params: {series: XTEXVA01JPM667S}
+    scale: 1.0e-8
+    unit: 億ドル
+    stale_days: 130
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 外需全体（ドル建て、発表は約2か月遅れ）
 
   # ── 業界統計 ───────────────────────────────────────────────
   - id: jmtba_total
@@ -121,9 +173,9 @@ indicators:
     lead: 東京エレクトロン・スクリーン・アドバンテスト・ディスコ
     restricted: true   # SEAJ は無断転載禁止。公開サイトに出す場合は false にしない
 
-  # ── 景気先行（海外） ───────────────────────────────────────
+  # ── 海外景気 ───────────────────────────────────────
   - id: us_core_capex
-    group: macro
+    group: us
     name: 米 コア資本財受注
     source: fred
     params: {series: NEWORDER}
@@ -133,7 +185,7 @@ indicators:
     good: up
     lead: 米企業の設備投資（航空機・防衛除く）
   - id: us_mfg_orders
-    group: macro
+    group: us
     name: 米 製造業新規受注
     source: fred
     params: {series: AMTMNO}
@@ -182,6 +234,95 @@ indicators:
     freq: monthly
     good: up
     lead: 100超=景気拡大方向
+
+  - id: oecd_cli_cn
+    group: macro
+    name: OECD 景気先行指数 中国
+    source: fred
+    params: {series: CHNLOLITOAASTSAM}
+    unit: 指数
+    freq: monthly
+    good: up
+    lead: 中国向け設備投資・素材需要
+  - id: oecd_cli_de
+    group: macro
+    name: OECD 景気先行指数 ドイツ
+    source: fred
+    params: {series: DEULOLITOAASTSAM}
+    unit: 指数
+    freq: monthly
+    good: up
+    lead: 欧州製造業
+  - id: oecd_cli_kr
+    group: macro
+    name: OECD 景気先行指数 韓国
+    source: fred
+    params: {series: KORLOLITOAASTSAM}
+    unit: 指数
+    freq: monthly
+    good: up
+    lead: 半導体・電子部品サイクル
+
+  # ── 米国景気 ───────────────────────────────────────────────
+  - id: us_durable
+    group: us
+    name: 米 耐久財受注
+    source: fred
+    params: {series: DGORDER}
+    unit: 百万ドル
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 米製造業の受注全体
+  - id: philly_orders
+    group: us
+    name: フィラデルフィア連銀 新規受注DI
+    source: fred
+    params: {series: NOCDFSA066MSFRBPHI}
+    change: diff
+    unit: DI
+    freq: monthly
+    good: up
+    lead: 毎月いちばん早く出る地区連銀の製造業景況感（0超=拡大）
+  - id: empire_orders
+    group: us
+    name: NY連銀 新規受注DI
+    source: fred
+    params: {series: NOCDISA066MSFRBNY}
+    change: diff
+    unit: DI
+    freq: monthly
+    good: up
+    lead: ニューヨーク州の製造業景況感（0超=拡大）
+  - id: us_permits
+    group: us
+    name: 米 住宅着工許可件数
+    source: fred
+    params: {series: PERMIT}
+    unit: 千戸(年率)
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 住宅投資の先行指標 → 建材・住設
+  - id: us_claims
+    group: us
+    name: 米 新規失業保険申請件数
+    source: fred
+    params: {series: ICSA}
+    unit: 件
+    freq: daily
+    stale_days: 14
+    good: down
+    lead: 週次。増加は景気悪化のサイン
+  - id: us_umich
+    group: us
+    name: ミシガン大 消費者信頼感
+    source: fred
+    params: {series: UMCSENT}
+    unit: 指数
+    freq: monthly
+    good: up
+    lead: 個人消費の先行
 
   # ── 市場ベース ─────────────────────────────────────────────
   - id: sox
@@ -240,6 +381,35 @@ indicators:
     freq: daily
     good: neutral
     lead: 逆イールド解消後は景気後退入りの警戒
+  - id: hy_spread
+    group: market
+    name: 米ハイイールド債スプレッド
+    source: fred
+    params: {series: BAMLH0A0HYM2}
+    change: diff
+    unit: "%pt"
+    freq: daily
+    good: down
+    lead: 信用リスク。拡大は株安・景気悪化に先行しやすい
+  - id: us_curve_3m
+    group: market
+    name: 米 長短金利差(10Y-3M)
+    source: fred
+    params: {series: T10Y3M}
+    change: diff
+    unit: "%pt"
+    freq: daily
+    good: neutral
+    lead: NY連銀の景気後退確率モデルで使われる金利差
+  - id: crude
+    group: market
+    name: WTI原油先物
+    source: yfinance
+    params: {ticker: "CL=F"}
+    unit: USD
+    freq: daily
+    good: neutral
+    lead: 需要の強さとコスト両面
   - id: usdjpy
     group: market
     name: ドル円

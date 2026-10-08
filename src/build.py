@@ -12,7 +12,7 @@ from .sources import trendforce
 
 DOCS = store.ROOT / "docs"      # 公開版（GitHub Pages）
 LOCAL = store.ROOT / "local"    # 全指標版（転載制限のあるデータを含む。git 管理外）
-SOURCE_LABEL = {"trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
+SOURCE_LABEL = {"esri": "内閣府", "trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
                 "jmtba": "日本工作機械工業会", "seaj": "日本半導体製造装置協会"}
 ARROW = {"up": "↑", "down": "↓", "flat": "→", "none": "・"}
 DIRECTION_LABEL = {"up": "上昇", "down": "下落", "flat": "横ばい", "none": "判定不可"}
@@ -25,6 +25,8 @@ def source_url(ind: dict) -> str:
         "fred": lambda: f"https://fred.stlouisfed.org/series/{p['series']}",
         "yfinance": lambda: f"https://finance.yahoo.com/quote/{quote(p['ticker'])}",
         "jmtba": lambda: "https://www.jmtba.or.jp/statistics/",
+        "esri": lambda: ("https://www.esri.cao.go.jp/jp/stat/di/di.html" if p["field"] == "ci_leading"
+                         else "https://www.esri.cao.go.jp/jp/stat/juchu/juchu.html"),
         "seaj": lambda: "https://www.seaj.or.jp/statistics/",
     }[ind["source"]]()
 

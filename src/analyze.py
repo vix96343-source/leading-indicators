@@ -6,6 +6,7 @@ DAILY_PCT = 3.0       # 日次: 3か月変化率 %
 DAILY_DIFF = 0.15     # 日次・差分型（金利など）: 3か月差 pt
 YOY_ACCEL_PT = 2.0    # 月次・前年比型: 前年比の3か月前からの変化 pt
 LEVEL_PCT = 0.5       # 月次・水準型: 3か月変化率 %
+LEVEL_DIFF = 3.0      # 月次・水準型・差分（DI など）: 3か月差 pt
 
 STALE_DAYS = {"daily": 7, "monthly": 80}
 
@@ -70,12 +71,15 @@ def summarize(ind: dict, s: pd.Series, today: pd.Timestamp) -> dict:
             out["direction"] = _direction(accel, YOY_ACCEL_PT)
             out["recent_yoy"] = {d: v for d, v in y.items()}
         else:
-            base3 = _asof(s, last_date - pd.DateOffset(months=3))
-            c3 = last - base3 if diff_mode and base3 is not None else _pct(last, base3)
-            c1 = _pct(last, _asof(s, last_date - pd.DateOffset(months=1)))
-            c12 = _pct(last, _asof(s, last_date - pd.DateOffset(months=12)))
-            out["metrics"] = [("前月比", c1, "%"), ("3か月", c3, "%"), ("前年比", c12, "%")]
-            out["direction"] = _direction(c3, LEVEL_PCT)
+            def chg(months):  # 差分型（DI など負になりうる指数）は pt 差、それ以外は変化率
+                base = _asof(s, last_date - pd.DateOffset(months=months))
+                if base is None:
+                    return None
+                return last - base if diff_mode else _pct(last, base)
+            c1, c3, c12 = chg(1), chg(3), chg(12)
+            unit = "pt" if diff_mode else "%"
+            out["metrics"] = [("前月比", c1, unit), ("3か月", c3, unit), ("前年比", c12, unit)]
+            out["direction"] = _direction(c3, LEVEL_DIFF if diff_mode else LEVEL_PCT)
 
     good = ind.get("good", "neutral")
     if out["direction"] in ("up", "down") and good in ("up", "down"):
