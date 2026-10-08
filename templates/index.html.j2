@@ -7,6 +7,31 @@
 <title>{{ title }}</title>
 <style>
 {% include "_board.css" %}
+/* 右側の関連企業パネル */
+.wrap { max-width: 1320px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 12px; align-items: start; }
+tr.s[data-rel] { cursor: pointer; }
+tr.s[data-rel]:hover td { background: var(--hover); }
+tr.s.sel td { background: var(--sel) !important; }
+.panel { position: sticky; top: 8px; max-height: calc(100vh - 16px); overflow: auto;
+  border: 1px solid var(--border); background: var(--row); }
+.panel .ph { padding: 8px 10px; background: var(--group-bg); display: flex; gap: 8px; align-items: baseline; }
+.panel .ph b { color: var(--group); font-size: 13.5px; }
+.panel .ph span { color: var(--muted); font-size: 12px; }
+.panel .ph .close { margin-left: auto; display: none; background: none; border: 0; color: var(--muted); font-size: 18px; cursor: pointer; }
+.panel .sub { padding: 6px 10px 2px; color: var(--muted); font-size: 12px; }
+.panel .sub a { font-size: 12px; }
+.panel h3 { margin: 0; padding: 6px 10px; font-size: 12.5px; background: var(--head); color: var(--text); }
+.panel table td { padding: 5px 8px; }
+.panel .none { padding: 8px 10px; color: var(--muted); font-size: 12.5px; }
+.panel .hint { padding: 16px 12px; color: var(--muted); font-size: 13px; }
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .panel { position: fixed; left: 0; right: 0; bottom: 0; top: auto; max-height: 72vh; z-index: 20;
+    transform: translateY(105%); transition: transform .2s ease; box-shadow: 0 -6px 24px rgba(0,0,0,.5); }
+  .panel.open { transform: none; }
+  .panel .ph .close { display: block; }
+}
 </style>
 </head>
 <body>
@@ -17,37 +42,44 @@
     <span class="spacer"></span>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
   </div>
-  <p class="summary">追い風<b class="up">{{ tally.up }}</b> 逆風<b class="down">{{ tally.down }}</b> 横ばい・中立<b>{{ tally.flat }}</b></p>
+  <p class="summary">追い風<b class="up">{{ tally.up }}</b> 逆風<b class="down">{{ tally.down }}</b> 横ばい・中立<b>{{ tally.flat }}</b>　<span>行を押すと関連企業（日本株・米国株）を表示</span></p>
 
-  <div class="scroll">
-    <table>
-      <thead>
-        <tr><th class="l">指標</th><th>日付</th><th>最新値</th><th colspan="3">変化</th><th>判定</th></tr>
-      </thead>
-      <tbody>
-      {% for g in groups %}
-        <tr class="g"><td colspan="7" title="{{ g.note }}">{{ g.name }}</td></tr>
-        {% for r in g.rows %}
-        {% if loop.first or r.kind != loop.previtem.kind or r.section != loop.previtem.section %}
-        <tr class="h"><td class="l">{{ r.section or '' }}</td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}<td></td></tr>
-        {% endif %}
-        <tr class="s">
-          <td class="l name" title="{{ r.lead }}"><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.name }}</a></td>
-          <td class="date">{{ r.date }}{% if r.stale %}<span class="stale-mark" title="更新が止まっている可能性">*</span>{% endif %}</td>
-          <td>{{ r.value }}<span class="unit"> {{ r.unit }}</span></td>
-          {% for c in r.cols %}<td class="{{ c.cls }}">{{ c.value }}</td>{% endfor %}
-          <td class="{{ r.judge_cls }}">{{ r.judge }}</td>
-        </tr>
-        {% endfor %}
-      {% endfor %}
-      </tbody>
-    </table>
+  <div class="layout">
+    <div>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th class="l">指標</th><th>日付</th><th>最新値</th><th colspan="3">変化</th><th>判定</th></tr>
+          </thead>
+          <tbody id="board">
+          {% for g in groups %}
+            <tr class="g"><td colspan="7" title="{{ g.note }}">{{ g.name }}</td></tr>
+            {% for r in g.rows %}
+            {% if loop.first or r.kind != loop.previtem.kind or r.section != loop.previtem.section %}
+            <tr class="h"><td class="l">{{ r.section or '' }}</td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}<td></td></tr>
+            {% endif %}
+            <tr class="s"{% if r.related %} data-rel="{{ r.related }}"{% endif %} data-name="{{ r.name }}" data-lead="{{ r.lead }}" data-src="{{ r.source }}" data-url="{{ r.source_url }}" tabindex="0">
+              <td class="l name">{{ r.name }}</td>
+              <td class="date">{{ r.date }}{% if r.stale %}<span class="stale-mark" title="更新が止まっている可能性">*</span>{% endif %}</td>
+              <td>{{ r.value }}<span class="unit"> {{ r.unit }}</span></td>
+              {% for c in r.cols %}<td class="{{ c.cls }}">{{ c.value }}</td>{% endfor %}
+              <td class="{{ r.judge_cls }}">{{ r.judge }}</td>
+            </tr>
+            {% endfor %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        日次は3か月の変化、月次は前年比が3か月前より2pt以上上がれば「加速」で判定。判定は関連銘柄にとっての追い風を赤、逆風をシアンで表示。
+        加速 = 前年比 − 3か月前の前年比（pt）。日付の * は更新が止まっている可能性。
+      </p>
+    </div>
+
+    <aside class="panel" id="panel" aria-live="polite">
+      <div class="hint">指標の行を押すと、関連する日本株・米国株をここに表示します。</div>
+    </aside>
   </div>
-  <p class="note">
-    日次は3か月の変化、月次は前年比が3か月前より2pt以上上がれば「加速」で判定。判定は関連銘柄にとっての追い風を赤、逆風を青で表示。
-    加速 = 前年比 − 3か月前の前年比（pt）。日付の * は更新が止まっている可能性。指標名から出所へ（長押し・カーソルで関連銘柄のメモ）。
-  </p>
-
 
   <footer>
     <table>
@@ -57,9 +89,10 @@
       {% endfor %}
       </tbody>
     </table>
-    <p>各データの権利は出所の各機関に帰属します。個人の調査用で、投資判断を推奨するものではありません。</p>
+    <p>各データの権利は出所の各機関に帰属します。関連企業は指標との関係が深い代表例で、網羅的なものではありません。個人の調査用で、投資判断を推奨するものではありません。</p>
   </footer>
 </div>
+<script id="baskets" type="application/json">{{ baskets | tojson }}</script>
 <script>
 (function () {
   var root = document.documentElement, btn = document.getElementById('themeBtn');
@@ -69,6 +102,56 @@
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('boardTheme', next); } catch (e) {}
   });
+
+  var baskets = JSON.parse(document.getElementById('baskets').textContent);
+  var panel = document.getElementById('panel');
+  var narrow = window.matchMedia('(max-width: 1000px)');
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function table(title, codeLabel, list) {
+    var h = '<h3>' + title + '</h3>';
+    if (!list.length) return h + '<div class="none">該当なし</div>';
+    h += '<table><thead><tr><th class="l">' + codeLabel + '</th><th class="l">銘柄名</th><th>現値</th><th>騰落率</th><th>1か月</th></tr></thead><tbody>';
+    list.forEach(function (q) {
+      h += '<tr class="s"><td class="l code">' + esc(q.code) + '</td>' +
+        '<td class="l name"><a href="' + esc(q.url) + '" target="_blank" rel="noopener">' + esc(q.name) + '</a></td>' +
+        '<td>' + esc(q.price) + '</td><td class="' + q.chg_cls + '">' + esc(q.chg) + '</td>' +
+        '<td class="' + q.m1_cls + '">' + esc(q.m1) + '</td></tr>';
+    });
+    return h + '</tbody></table>';
+  }
+  function show(tr) {
+    var b = baskets[tr.dataset.rel];
+    if (!b) return;
+    document.querySelectorAll('#board tr.sel').forEach(function (x) { x.classList.remove('sel'); });
+    tr.classList.add('sel');
+    panel.innerHTML =
+      '<div class="ph"><b>' + esc(tr.dataset.name) + '</b><span>関連: ' + esc(b.name) + '</span>' +
+      '<button class="close" type="button" aria-label="閉じる">×</button></div>' +
+      '<div class="sub">' + esc(tr.dataset.lead) + (tr.dataset.url ? ' ／ 出所: <a href="' + esc(tr.dataset.url) +
+      '" target="_blank" rel="noopener">' + esc(tr.dataset.src) + '</a>' : '') + '</div>' +
+      table('日本株', 'コード', b.jp) + table('米国株', 'ティッカー', b.us);
+    panel.querySelector('.close').addEventListener('click', function () { panel.classList.remove('open'); });
+    panel.classList.add('open');
+    if (!narrow.matches) panel.scrollTop = 0;
+  }
+  var board = document.getElementById('board');
+  board.addEventListener('click', function (e) {
+    var tr = e.target.closest('tr.s[data-rel]');
+    if (tr) show(tr);
+  });
+  board.addEventListener('keydown', function (e) {
+    var tr = e.target.closest('tr.s[data-rel]');
+    if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); show(tr); }
+  });
+  if (!narrow.matches) {  // PC は最初の行を表示しておく
+    var first = board.querySelector('tr.s[data-rel]');
+    if (first) show(first);
+  }
 })();
 </script>
 </body>

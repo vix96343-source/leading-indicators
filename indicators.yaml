@@ -11,6 +11,7 @@
 #                       jsim_total / jsim_domestic / jsim_foreign / inbound_total / inbound_china)
 #   ctia:       field (w_apt / w_concentrate / w_ferro / w_powder / w_apt_eu)  ※ restricted
 #
+# related: 行を押したときに右側に出す関連企業（baskets.yaml のバスケット名）
 # good: up = 上昇が関連銘柄の追い風 / down = 低下が追い風 / neutral = 方向で良し悪しを付けない
 # scale: 表示時に値へ掛ける倍率（単位換算）  stale_days: 「更新停止?」と出すまでの日数
 # change: diff なら変化を率でなく差（pt）で表示（金利など）
@@ -47,6 +48,7 @@ groups:
 # 規約上公開できないため --public では取得も表示もしない。
 trendforce:
   group: semi
+  related: memory
 
 indicators:
   # ── 半導体市場 ─────────────────────────────────────────────
@@ -59,6 +61,7 @@ indicators:
     freq: daily
     good: up
     lead: メモリ市況の市場評価
+    related: memory
   - id: hynix
     group: semi
     name: SKハイニックス 株価
@@ -68,6 +71,7 @@ indicators:
     freq: daily
     good: up
     lead: HBM・DRAM市況の市場評価
+    related: memory
 
   # ── 業界：機械（産業機械） ──
   - id: jsim_total
@@ -81,6 +85,7 @@ indicators:
     good: up
     lead: ボイラ・化学機械・ポンプ・運搬機械など（日本産業機械工業会）
     stale_days: 110
+    related: plant
   - id: jsim_domestic
     group: machinery
     name: 産業機械受注 内需
@@ -92,6 +97,7 @@ indicators:
     good: up
     lead: 国内のプラント・設備投資
     stale_days: 110
+    related: plant
   - id: jsim_foreign
     group: machinery
     name: 産業機械受注 外需
@@ -103,6 +109,7 @@ indicators:
     good: up
     lead: 海外プラント案件（月ごとの振れが大きい）
     stale_days: 110
+    related: plant
 
   # ── 業界：住宅・建設 ──
   - id: housing_total
@@ -115,6 +122,7 @@ indicators:
     yoy: true
     good: up
     lead: 住宅メーカー・建材・住設（国交省、原数値）
+    related: housing
   - id: housing_owner
     group: housing
     name: 新設住宅着工 持家
@@ -125,6 +133,7 @@ indicators:
     yoy: true
     good: up
     lead: 注文住宅 → ハウスメーカー
+    related: housing
   - id: housing_rental
     group: housing
     name: 新設住宅着工 貸家
@@ -135,6 +144,7 @@ indicators:
     yoy: true
     good: up
     lead: アパート建築 → 賃貸住宅メーカー
+    related: housing
   - id: lumber
     group: housing
     name: 木材先物（米国）
@@ -144,6 +154,7 @@ indicators:
     freq: daily
     good: up
     lead: 住宅需要と建材コスト
+    related: lumber
 
   # ── 業界：鉄鋼・観光 ──
   - id: steel_crude
@@ -156,6 +167,7 @@ indicators:
     yoy: true
     good: up
     lead: 鉄鋼需要（自動車・建設・造船）→ 高炉・電炉
+    related: steel
   - id: inbound_total
     group: other_ind
     name: 訪日外客数 総数
@@ -166,6 +178,7 @@ indicators:
     yoy: true
     good: up
     lead: インバウンド → 百貨店・ホテル・鉄道・空運
+    related: inbound
   - id: inbound_china
     group: other_ind
     name: 訪日外客数 中国
@@ -176,6 +189,7 @@ indicators:
     yoy: true
     good: up
     lead: 中国人客 → 化粧品・百貨店
+    related: inbound_china
 
   # ── 素材価格 ──
   - id: gold
@@ -187,6 +201,7 @@ indicators:
     freq: daily
     good: up
     lead: 安全資産・インフレヘッジ → 非鉄・資源
+    related: gold
   - id: silver
     group: materials
     name: 銀
@@ -196,6 +211,7 @@ indicators:
     freq: daily
     good: up
     lead: 貴金属＋太陽電池・電子部品の工業需要
+    related: silver
   - id: platinum
     group: materials
     name: プラチナ
@@ -205,6 +221,7 @@ indicators:
     freq: daily
     good: up
     lead: 自動車触媒・水素
+    related: pgm
   - id: palladium
     group: materials
     name: パラジウム
@@ -214,6 +231,7 @@ indicators:
     freq: daily
     good: up
     lead: ガソリン車触媒
+    related: pgm
   - id: aluminum
     group: materials
     name: アルミ
@@ -223,6 +241,7 @@ indicators:
     freq: daily
     good: up
     lead: 軽量化素材
+    related: aluminum
   - id: iron_ore
     group: materials
     name: 鉄鉱石（SGX）
@@ -232,6 +251,7 @@ indicators:
     freq: daily
     good: up
     lead: 中国の鉄鋼生産 → 商社・海運
+    related: iron_ore
   - id: hrc
     group: materials
     name: 熱延コイル（米国）
@@ -241,6 +261,7 @@ indicators:
     freq: daily
     good: up
     lead: 鋼材市況
+    related: steel
   - id: natgas
     group: materials
     name: 天然ガス（米国）
@@ -250,6 +271,7 @@ indicators:
     freq: daily
     good: up
     lead: エネルギー・化学原料
+    related: natgas
   - id: lithium_etf
     group: materials
     name: リチウム関連ETF (LIT)
@@ -259,6 +281,7 @@ indicators:
     freq: daily
     good: up
     lead: 電池素材の代替指標
+    related: lithium
   - id: uranium_etf
     group: materials
     name: ウラン関連ETF (URA)
@@ -268,6 +291,7 @@ indicators:
     freq: daily
     good: up
     lead: 原子力需要の代替指標
+    related: uranium
   - id: rare_earth_etf
     group: materials
     name: レアアース関連ETF (REMX)
@@ -277,6 +301,7 @@ indicators:
     freq: daily
     good: up
     lead: レアアース・レアメタルの代替指標
+    related: rare_earth
   - id: w_apt
     group: materials
     name: タングステン APT（中国）
@@ -288,6 +313,7 @@ indicators:
     lead: 超硬工具の原料
     restricted: true   # 中钨在线は無断転載・使用・配布を禁止
     stale_days: 10
+    related: tungsten
   - id: w_concentrate
     group: materials
     name: タングステン精鉱（中国）
@@ -299,6 +325,7 @@ indicators:
     lead: 鉱山側の価格
     restricted: true   # 中钨在线は無断転載・使用・配布を禁止
     stale_days: 10
+    related: tungsten
   - id: w_ferro
     group: materials
     name: フェロタングステン 70%（中国）
@@ -310,6 +337,7 @@ indicators:
     lead: 特殊鋼の添加材
     restricted: true   # 中钨在线は無断転載・使用・配布を禁止
     stale_days: 10
+    related: tungsten
   - id: w_powder
     group: materials
     name: タングステン粉（中国）
@@ -321,6 +349,7 @@ indicators:
     lead: 超硬合金の直接原料
     restricted: true   # 中钨在线は無断転載・使用・配布を禁止
     stale_days: 10
+    related: tungsten
   - id: w_apt_eu
     group: materials
     name: タングステン APT（欧州）
@@ -332,6 +361,7 @@ indicators:
     lead: 欧州市場
     restricted: true   # 中钨在线は無断転載・使用・配布を禁止
     stale_days: 10
+    related: tungsten
 
   - id: juchu_core
     group: machinery
@@ -344,6 +374,7 @@ indicators:
     yoy: true
     good: up
     lead: 国内設備投資の代表的な先行指標（季調値）→ FA・機械・建機
+    related: fa
   - id: juchu_foreign
     group: machinery
     name: 機械受注 外需
@@ -355,6 +386,7 @@ indicators:
     yoy: true
     good: up
     lead: 海外からの機械受注（季調値）
+    related: fa
 
   # ── 業界統計 ───────────────────────────────────────────────
   - id: jmtba_total
@@ -367,6 +399,7 @@ indicators:
     yoy: true
     good: up
     lead: 設備投資の先行指標 → ファナック・DMG森精機・オークマ・THK
+    related: machine_tools
   - id: jmtba_domestic
     group: machinery
     name: 工作機械受注 内需
@@ -377,6 +410,7 @@ indicators:
     yoy: true
     good: up
     lead: 国内製造業の設備投資
+    related: machine_tools
   - id: jmtba_foreign
     group: machinery
     name: 工作機械受注 外需
@@ -387,6 +421,7 @@ indicators:
     yoy: true
     good: up
     lead: 海外製造業の設備投資
+    related: machine_tools
   - id: jmtba_china
     group: machinery
     name: 工作機械受注 中国
@@ -397,6 +432,7 @@ indicators:
     yoy: true
     good: up
     lead: 中国の設備投資（確報ベース、速報より約3週遅れ）
+    related: fa
   - id: jmtba_elec
     group: machinery
     name: 工作機械受注 内需 電気・精密
@@ -407,6 +443,7 @@ indicators:
     yoy: true
     good: up
     lead: 国内の電子部品・半導体関連の設備投資（確報ベース）
+    related: semi_equipment
   - id: seaj_semi
     group: semi
     name: 日本製半導体製造装置 販売高(3MA)
@@ -418,6 +455,7 @@ indicators:
     good: up
     lead: 東京エレクトロン・スクリーン・アドバンテスト・ディスコ
     restricted: true   # SEAJ は無断転載禁止。公開サイトに出す場合は false にしない
+    related: semi_equipment
 
   - id: us_semi_ip
     group: semi
@@ -429,6 +467,7 @@ indicators:
     yoy: true
     good: up
     lead: 半導体需要
+    related: semiconductor
 
 
   - id: us_permits
@@ -441,6 +480,7 @@ indicators:
     yoy: true
     good: up
     lead: 住宅投資の先行指標 → 建材・住設
+    related: housing
 
   # ── 市場ベース ─────────────────────────────────────────────
   - id: sox
@@ -452,6 +492,7 @@ indicators:
     freq: daily
     good: up
     lead: 半導体サイクル → 日本の半導体・装置株
+    related: semiconductor
   - id: copper
     group: materials
     name: 銅先物
@@ -461,6 +502,7 @@ indicators:
     freq: daily
     good: up
     lead: 「ドクター・カッパー」世界景気の体温計
+    related: copper
   - id: kospi
     group: market
     name: KOSPI
@@ -470,6 +512,7 @@ indicators:
     freq: daily
     good: up
     lead: 輸出・半導体依存度が高く世界景気に先行しやすい
+    related: memory
   - id: us10y
     group: market
     name: 米10年債利回り
@@ -480,6 +523,7 @@ indicators:
     freq: daily
     good: neutral
     lead: グロース株の割引率
+    related: rates
   - id: us_curve
     group: market
     name: 米 長短金利差(10Y-2Y)
@@ -490,6 +534,7 @@ indicators:
     freq: daily
     good: neutral
     lead: 逆イールド解消後は景気後退入りの警戒
+    related: rates
   - id: us_curve_3m
     group: market
     name: 米 長短金利差(10Y-3M)
@@ -500,6 +545,7 @@ indicators:
     freq: daily
     good: neutral
     lead: NY連銀の景気後退確率モデルで使われる金利差
+    related: rates
   - id: crude
     group: materials
     name: WTI原油先物
@@ -509,6 +555,7 @@ indicators:
     freq: daily
     good: neutral
     lead: 需要の強さとコスト両面
+    related: oil
   - id: usdjpy
     group: market
     name: ドル円
@@ -518,4 +565,5 @@ indicators:
     freq: daily
     good: neutral
     lead: 円安は輸出株の採算改善
+    related: fx
 

@@ -8,15 +8,24 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import analyze, store
 from .fetch import JST, STATUS_PATH, load_config, today_jst
-from .sources import trendforce
+from .sources import stocks, trendforce
 
 DOCS = store.ROOT / "docs"      # 公開版（GitHub Pages）
 LOCAL = store.ROOT / "local"    # 全指標版（転載制限のあるデータを含む。git 管理外）
-SOURCE_LABEL = {"ctia": "中钨在线", "industry_jp": "業界統計（国交省・鉄鋼連盟・産機工・JNTO）", "esri": "内閣府", "trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
+SOURCE_LABEL = {"stocks": "Yahoo Finance（関連企業）", "ctia": "中钨在线", "industry_jp": "業界統計（国交省・鉄鋼連盟・産機工・JNTO）", "esri": "内閣府", "trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
                 "jmtba": "日本工作機械工業会", "seaj": "日本半導体製造装置協会"}
 ARROW = {"up": "↑", "down": "↓", "flat": "→", "none": "・"}
 DIRECTION_LABEL = {"up": "上昇", "down": "下落", "flat": "横ばい", "none": "判定不可"}
 YOY_DIRECTION_LABEL = {"up": "加速", "down": "減速", "flat": "横ばい", "none": "判定不可"}
+
+
+INDUSTRY_JP_LABEL = {"housing": "国土交通省", "steel": "日本鉄鋼連盟", "jsim": "日本産業機械工業会", "inbound": "JNTO"}
+
+
+def source_label(ind: dict) -> str:
+    if ind["source"] == "industry_jp":
+        return INDUSTRY_JP_LABEL[ind["params"]["field"].split("_")[0]]
+    return SOURCE_LABEL[ind["source"]]
 
 
 def source_url(ind: dict) -> str:
@@ -85,11 +94,12 @@ def row(ind: dict, today: pd.Timestamp) -> dict:
         "cols": cols,
         "judge": "—" if a["direction"] == "none" else f'{ARROW[a["direction"]]}{labels[a["direction"]]}',
         "judge_cls": TONE_CLASS.get(a["tone"], "flat"),
-        "source": SOURCE_LABEL[ind["source"]], "source_url": source_url(ind),
+        "source": source_label(ind), "source_url": source_url(ind),
+        "related": ind.get("related", ""),
     }
 
 
-def tf_rows(today: pd.Timestamp) -> list[dict]:
+def tf_rows(today: pd.Timestamp, related: str = "") -> list[dict]:
     """TrendForce の全品目。前回比は TrendForce 表示の値、1か月・3か月は蓄積した履歴から計算。"""
     out = []
     for m in trendforce.load_meta():
@@ -115,9 +125,36 @@ def tf_rows(today: pd.Timestamp) -> list[dict]:
             "cols": [{"value": fmt(v, "%", signed=True), "cls": _cls(v)} for v in (prev, c1m, c3m)],
             "judge": "—" if direction == "none" else f"{ARROW[direction]}{DIRECTION_LABEL[direction]}",
             "judge_cls": {"up": "up", "down": "down"}.get(direction, "flat"),
-            "source": "TrendForce", "source_url": m["url"],
+            "source": "TrendForce", "source_url": m["url"], "related": related,
         })
     return out
+
+
+def stock_quote(market: str, code: str, name: str) -> dict:
+    sym = stocks.yahoo_symbol(market, code)
+    s = store.load(stocks.series_id(sym))
+    q = {"code": code, "name": name, "price": "—", "chg": "—", "chg_cls": "flat", "m1": "—", "m1_cls": "flat",
+         "url": f"https://kabutan.jp/stock/?code={code}" if market == "jp" else f"https://finance.yahoo.com/quote/{code}"}
+    if s.empty:
+        return q
+    last = float(s.iloc[-1])
+    q["price"] = f"{last:,.0f}" if market == "jp" and last >= 100 else f"{last:,.2f}"
+    if len(s) >= 2:
+        d = (last / float(s.iloc[-2]) - 1) * 100
+        q["chg"], q["chg_cls"] = f"{d:+.2f}%", _cls(d)
+    base = s[s.index <= s.index[-1] - pd.Timedelta(days=30)]
+    if not base.empty:
+        m = (last / float(base.iloc[-1]) - 1) * 100
+        q["m1"], q["m1_cls"] = f"{m:+.1f}%", _cls(m)
+    return q
+
+
+def basket_data(keys: set[str]) -> dict:
+    baskets = stocks.load_baskets()
+    return {k: {"name": baskets[k]["name"],
+                "jp": [stock_quote("jp", c, n) for c, n in baskets[k].get("jp") or []],
+                "us": [stock_quote("us", c, n) for c, n in baskets[k].get("us") or []]}
+            for k in sorted(keys) if k in baskets}
 
 
 def _cls(v):
@@ -136,7 +173,7 @@ def build(public: bool = False) -> str:
     for g in cfg["groups"]:
         rs = [rows[i["id"]] for i in inds if i["group"] == g["id"]]
         if not public and cfg.get("trendforce", {}).get("group") == g["id"]:
-            rs = tf_rows(today) + rs
+            rs = tf_rows(today, cfg["trendforce"].get("related", "")) + rs
         if rs:
             note = g.get("public_note", g["note"]) if public else g["note"]
             groups.append({**g, "note": note, "rows": rs})
@@ -147,7 +184,7 @@ def build(public: bool = False) -> str:
 
 
     status = json.loads(STATUS_PATH.read_text(encoding="utf-8")) if STATUS_PATH.exists() else {}
-    used = {i["source"] for i in inds}
+    used = {i["source"] for i in inds} | {"stocks"}
     if not public and cfg.get("trendforce"):
         used.add("trendforce")
     status_rows = [{"name": SOURCE_LABEL.get(k, k), **v, "at": v.get("at", "")[:16].replace("T", " ")}
@@ -159,6 +196,7 @@ def build(public: bool = False) -> str:
         title=cfg["site"]["title"],
         generated_at=datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
         groups=groups, tally=tally, columns=COLUMNS,
+        baskets=basket_data({r["related"] for g in groups for r in g["rows"] if r["related"]}),
         status=status_rows, public=public,
     )
     out_dir = DOCS if public else LOCAL

@@ -30,9 +30,9 @@
   },
   "stocks": {
     "ok": true,
-    "at": "2026-10-08T17:53:21+09:00",
-    "updated_rows": 0,
-    "message": ""
+    "at": "2026-10-08T19:28:42+09:00",
+    "updated_rows": 35237,
+    "message": "143 銘柄"
   },
   "esri": {
     "ok": true,

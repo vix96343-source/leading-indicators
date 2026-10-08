@@ -8,7 +8,7 @@ import pandas as pd
 import yaml
 
 from . import store
-from .sources import ctia, esri, fred, industry_jp, jmtba, seaj, trendforce, yf
+from .sources import ctia, esri, fred, industry_jp, stocks, jmtba, seaj, trendforce, yf
 
 JST = ZoneInfo("Asia/Tokyo")
 CONFIG_PATH = store.ROOT / "indicators.yaml"
@@ -52,6 +52,19 @@ def run(backfill: bool = False, only: list[str] | None = None, public: bool = Fa
             traceback.print_exc()
 
 
+
+    # 関連企業の株価（行を押したときに右側に出す）
+    if not only or "stocks" in only:
+        now = datetime.now(JST).isoformat(timespec="seconds")
+        try:
+            got, missing = stocks.fetch(today, backfill=backfill)
+            n = sum(store.upsert(k, v) for k, v in got.items())
+            status["stocks"] = {"ok": True, "at": now, "updated_rows": n,
+                                "message": f"未取得: {', '.join(missing)}" if missing else f"{len(got)} 銘柄"}
+            print(f"[stocks] ok  {len(got)} 銘柄" + (f"  未取得 {missing}" if missing else ""))
+        except Exception as e:
+            status["stocks"] = {"ok": False, "at": now, "message": f"{type(e).__name__}: {e}"}
+            print(f"[stocks] 失敗: {e}")
 
     # TrendForce は全品目を自動取得。規約上公開できないので --public では取らない
     if cfg.get("trendforce") and not public and (not only or "trendforce" in only):
