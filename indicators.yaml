@@ -313,3 +313,28 @@ companies:
     - {code: "6103", name: オークマ}
     - {code: "9962", name: ミスミグループ本社}
     - {code: "3064", name: MonotaRO}
+
+# ── 注目銘柄の一覧ページ（docs/stocks.html） ───────────────────────
+# 株価は yfinance（<code>.T）で毎営業日更新。q_yoy / accel は q-accel スクリーニングの結果（as_of 時点）を手で転記。
+#   q_yoy: 直近四半期の売上 前年同期比 %   accel: q_yoy − 直近4四半期合計の前年比（pt）
+stocks:
+  as_of: "2026-09-26"
+  groups:
+    - name: 半導体 前工程装置・部材
+      items:
+        - {code: "8035", name: 東京エレクトロン, q_yoy: 33.3, accel: 25.0}
+        - {code: "6855", name: 日本電子材料, q_yoy: 77.3, accel: 39.0}
+        - {code: "6890", name: フェローテック, q_yoy: 164.8, accel: 122.2}
+        - {code: "6235", name: オプトラン, q_yoy: 49.5, accel: 28.2}
+    - name: 設備投資・FA
+      items:
+        - {code: "6407", name: CKD, q_yoy: 35.5, accel: 24.5}
+        - {code: "6273", name: SMC, q_yoy: 35.4, accel: 19.7}
+        - {code: "6490", name: 日本ピラー工業, q_yoy: 35.6, accel: 25.5}
+        - {code: "6652", name: IDEC, q_yoy: 36.0, accel: 18.9}
+        - {code: "6866", name: 日置電機, q_yoy: 31.1, accel: 18.7}
+    - name: メモリ・後工程
+      items:
+        - {code: "285A", name: キオクシアHD, q_yoy: 415.5, accel: 283.4}
+        - {code: "6315", name: TOWA, q_yoy: 100.3, accel: 71.0}
+        - {code: "6875", name: メガチップス, q_yoy: 56.4, accel: 54.7}

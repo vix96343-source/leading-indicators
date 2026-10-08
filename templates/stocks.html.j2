@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>注目銘柄ボード</title>
+<style>
+:root {
+  --bg: #000000; --row: #0b0b0b; --row-alt: #161616; --head: #2a2a2a; --border: #262626;
+  --text: #e6e6e6; --muted: #9a9a9a; --name: #f2d84b; --code: #d9d9d9; --group: #ffffff; --group-bg: #1d2a44;
+  --up: #ff4d4d; --down: #4f8dff; --flat: #cfcfcf; --link: #8fb4ff;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f4f5f7; --row: #ffffff; --row-alt: #f1f3f6; --head: #dfe3e8; --border: #dfe3e8;
+  --text: #16191d; --muted: #5f6873; --name: #8a5a00; --code: #33383e; --group: #16191d; --group-bg: #e3e9f5;
+  --up: #d42020; --down: #1f5fd6; --flat: #5f6873; --link: #3b5bdb;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 14px/1.4 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+}
+a { color: var(--link); }
+.wrap { max-width: 900px; margin: 0 auto; padding: 12px 16px 32px; }
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.top h1 { font-size: 16px; margin: 0; }
+.top .meta { color: var(--muted); font-size: 12px; }
+.top .spacer { flex: 1; }
+.theme-btn { border: 1px solid var(--border); background: var(--row); color: var(--muted); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+.scroll { overflow-x: auto; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; white-space: nowrap; }
+thead th {
+  position: sticky; top: 0; background: var(--head); color: var(--text); font-weight: 600;
+  font-size: 12.5px; padding: 6px 8px; text-align: right; border-right: 1px solid var(--border);
+}
+th.l, td.l { text-align: left; }
+tbody td { padding: 5px 8px; text-align: right; border-right: 1px solid var(--border); border-top: 1px solid var(--border); }
+tbody tr.s:nth-of-type(odd) td { background: var(--row); }
+tbody tr.s:nth-of-type(even) td { background: var(--row-alt); }
+tr.g td { background: var(--group-bg); color: var(--group); font-weight: 700; font-size: 12.5px; text-align: left; padding: 4px 8px; }
+td.code { color: var(--code); }
+td.name { color: var(--name); max-width: 11em; overflow: hidden; text-overflow: ellipsis; }
+td.name a { color: inherit; text-decoration: none; }
+.up { color: var(--up); } .down { color: var(--down); } .flat { color: var(--flat); }
+td.stale { color: var(--muted); }
+.note { color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.6; }
+@media (max-width: 520px) {
+  body { font-size: 13px; }
+  .wrap { padding: 10px 8px 24px; }
+  thead th, tbody td { padding: 5px 5px; }
+  td.name { max-width: 7em; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>注目銘柄ボード</h1>
+    <span class="meta">株価 {{ price_date }} 終値 ／ 業績 {{ as_of }} 時点</span>
+    <span class="spacer"></span>
+    <a href="index.html">先行指標 →</a>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th class="l">コード</th><th class="l">銘柄名</th><th>現値</th><th>前日比</th><th>騰落率</th><th>単Q売上</th><th>加速</th></tr>
+      </thead>
+      <tbody>
+      {% for g in groups %}
+        <tr class="g"><td colspan="7">{{ g.name }}</td></tr>
+        {% for r in g.rows %}
+        <tr class="s">
+          <td class="l code">{{ r.code }}</td>
+          <td class="l name" title="{{ r.name }}"><a href="https://kabutan.jp/stock/?code={{ r.code }}" target="_blank" rel="noopener">{{ r.name }}</a></td>
+          <td class="{{ 'stale' if r.stale else '' }}">{{ r.price }}</td>
+          <td class="{{ r.cls }}">{{ r.chg }}</td>
+          <td class="{{ r.cls }}">{{ r.pct }}</td>
+          <td class="{{ r.q_cls }}">{{ r.q_yoy }}</td>
+          <td class="{{ r.a_cls }}">{{ r.accel }}</td>
+        </tr>
+        {% endfor %}
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="note">
+    単Q売上 = 直近四半期の売上の前年同期比、加速 = 単Q売上 − 直近1年の売上前年比（pt）。q-accel スクリーニング（{{ as_of }}）の値。<br>
+    株価は Yahoo Finance の終値で平日 19:00 JST に更新。値上がりは赤、値下がりは青。銘柄名から株探へ。<br>
+    個人の調査用の一覧で、売買を推奨するものではありません。
+  </p>
+</div>
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  try { var t = localStorage.getItem('stocksTheme'); if (t) root.setAttribute('data-theme', t); } catch (e) {}
+  btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('stocksTheme', next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

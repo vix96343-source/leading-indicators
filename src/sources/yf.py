@@ -14,13 +14,16 @@ def clean(close: pd.Series) -> pd.Series:
 
 
 def fetch(indicators: list[dict], today: pd.Timestamp, backfill: bool = False) -> dict[str, pd.Series]:
-    out = {}
+    out, empty = {}, []
     for ind in indicators:
         hist = yf.Ticker(ind["params"]["ticker"]).history(
             period="10y" if backfill else "3mo", auto_adjust=True)
         if hist.empty:
-            raise ValueError(f"yfinance: {ind['params']['ticker']} のデータが空")
+            empty.append(ind["params"]["ticker"])  # 1銘柄の欠損で他を止めない
+            continue
         close = hist["Close"]
         close.index = close.index.tz_localize(None).normalize()
         out[ind["id"]] = clean(close)
+    if not out:
+        raise ValueError(f"yfinance: 全銘柄のデータが空 {empty}")
     return out
