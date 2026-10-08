@@ -39,6 +39,8 @@ jobs:
         run: python -m pytest -q
 
       - name: fetch
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}   # 任意。設定すると FRED を公式 API で取得（安定）
         run: python -m src.cli fetch --public ${{ inputs.backfill && '--backfill' || '' }}
 
       - name: build

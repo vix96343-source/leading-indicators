@@ -28,7 +28,7 @@ def upsert(series_id: str, new: pd.Series) -> int:
     kept = old[~old.index.isin(new.index)]
     merged = (pd.concat([kept, new]) if not kept.empty else new).sort_index()
     changed = int((~new.index.isin(old.index)).sum()
-                  + (old.reindex(new.index).sub(new).abs() > 1e-9).sum())
+                  + (old.reindex(new.index).sub(new).abs() > 1e-8 * new.abs().clip(lower=1)).sum())  # 保存時の丸め差は無視
     SERIES_DIR.mkdir(parents=True, exist_ok=True)
     out = merged.rename("value").to_frame()
     out.index.name = "date"

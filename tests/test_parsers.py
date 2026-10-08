@@ -71,6 +71,12 @@ def test_fred_csv_skips_missing():
     assert list(s.values) == [1.5, 2.0]
 
 
+def test_fred_api_json():
+    s = fred.parse_api({"observations": [{"date": "2026-01-01", "value": "1.5"},
+                                         {"date": "2026-02-01", "value": "."}]})
+    assert list(s.values) == [1.5]
+
+
 def test_tdnet_list_page_and_pager():
     items, has_next = tdnet.parse_list_page(read("tdnet_list.html"), "2026-10-07", page=1)
     assert items and items[0]["code"] == "576A"
