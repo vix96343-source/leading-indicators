@@ -1,6 +1,4 @@
 """系列から表示用の数値（変化率・前年比・加速・方向）を計算する。"""
-import math
-
 import pandas as pd
 
 # 方向判定のしきい値（これ未満の変化は「横ばい」）
@@ -32,14 +30,6 @@ def yoy_series(s: pd.Series) -> pd.Series:
     return ((both["now"] / both["prev"] - 1) * 100).rename("yoy")
 
 
-def thin(s: pd.Series, max_points: int) -> pd.Series:
-    if len(s) <= max_points:
-        return s
-    step = math.ceil(len(s) / max_points)
-    picked = s.iloc[::-1][::step].iloc[::-1]  # 最新点は必ず残す
-    return picked
-
-
 def summarize(ind: dict, s: pd.Series, today: pd.Timestamp) -> dict:
     out = {"n": int(len(s)), "latest": None, "direction": "none", "tone": "neutral", "metrics": []}
     if s.empty:
@@ -64,8 +54,6 @@ def summarize(ind: dict, s: pd.Series, today: pd.Timestamp) -> dict:
         basis = c3m if c3m is not None else c1m if c1m is not None else c1w
         thr = DAILY_DIFF if diff_mode else DAILY_PCT
         out["direction"] = _direction(basis, thr)
-        out["chart"] = thin(window, 160)
-        out["chart_kind"] = "level"
         out["recent"] = list(s.iloc[-10:][::-1].items())
     else:
         out["recent"] = list(s.iloc[-13:][::-1].items())
@@ -80,11 +68,6 @@ def summarize(ind: dict, s: pd.Series, today: pd.Timestamp) -> dict:
                               ("加速", accel, "pt"), ("前月比", mom, "%")]
             out["yoy"], out["accel"] = y_now, accel
             out["direction"] = _direction(accel, YOY_ACCEL_PT)
-            out["chart"] = y[y.index > last_date - pd.DateOffset(years=5)]
-            out["chart_kind"] = "yoy"
-            if out["chart"].empty:  # 前年比がまだ計算できない（履歴の蓄積待ち）
-                out["chart"] = s[s.index > last_date - pd.DateOffset(years=5)]
-                out["chart_kind"] = "level"
             out["recent_yoy"] = {d: v for d, v in y.items()}
         else:
             base3 = _asof(s, last_date - pd.DateOffset(months=3))
@@ -93,8 +76,6 @@ def summarize(ind: dict, s: pd.Series, today: pd.Timestamp) -> dict:
             c12 = _pct(last, _asof(s, last_date - pd.DateOffset(months=12)))
             out["metrics"] = [("前月比", c1, "%"), ("3か月", c3, "%"), ("前年比", c12, "%")]
             out["direction"] = _direction(c3, LEVEL_PCT)
-            out["chart"] = s[s.index > last_date - pd.DateOffset(years=5)]
-            out["chart_kind"] = "level"
 
     good = ind.get("good", "neutral")
     if out["direction"] in ("up", "down") and good in ("up", "down"):

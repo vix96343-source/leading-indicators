@@ -28,11 +28,10 @@ def test_yoy_deceleration_is_bad_even_if_yoy_positive():
     assert a["direction"] == "down" and a["tone"] == "bad"
 
 
-def test_yoy_without_history_falls_back_to_level_chart():
+def test_yoy_without_history_is_undetermined():
     s = monthly([1, 2, 3])
     a = analyze.summarize({"freq": "monthly", "yoy": True, "good": "up"}, s, TODAY)
     assert a["yoy"] is None and a["direction"] == "none"
-    assert a["chart_kind"] == "level"
 
 
 def test_daily_pct_change_and_neutral_tone():

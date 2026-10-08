@@ -43,7 +43,7 @@ body {
   font-feature-settings: "palt";
 }
 a { color: var(--accent); }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 16px; }
 header.top {
   position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
@@ -82,59 +82,49 @@ nav.groups a {
 section.group { margin-top: 28px; scroll-margin-top: 64px; }
 section.group > h2 { font-size: 18px; margin: 0 0 2px; }
 section.group > p.note { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
-.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+/* 横7列。画面が狭いときは列数を減らす */
+.grid { display: grid; gap: 8px; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+@media (max-width: 1100px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (max-width: 800px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-  padding: 12px 14px 10px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 4px; min-width: 0;
   scroll-margin-top: 64px;
 }
-.card .head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
-.card h3 { font-size: 14.5px; margin: 0; line-height: 1.35; }
-.tag { font-size: 11px; color: var(--faint); margin-left: 4px; font-weight: 400; }
+.card h3 { font-size: 13px; margin: 0; line-height: 1.3; min-height: 2.6em; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sub { display: flex; align-items: center; gap: 6px; }
+.tag { font-size: 10.5px; color: var(--faint); }
 .badge {
-  flex: none; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px;
+  font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 5px;
   background: var(--neutral-bg); color: var(--neutral); white-space: nowrap;
 }
 .badge.good { background: var(--good-bg); color: var(--good); }
 .badge.bad { background: var(--bad-bg); color: var(--bad); }
-.value { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
-.value .num { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-.value .unit { color: var(--muted); font-size: 12.5px; }
-.value .date { color: var(--faint); font-size: 12px; margin-left: auto; }
-.stale { color: var(--warn); background: var(--warn-bg); font-size: 11.5px; padding: 1px 6px; border-radius: 4px; }
-.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-.metrics.m3 { grid-template-columns: repeat(3, 1fr); }
-.metric { background: var(--surface-2); border-radius: 6px; padding: 4px 6px; min-width: 0; }
-.metric .l { font-size: 10.5px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.metric .v { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.metric .v.pos { color: var(--good); } .metric .v.neg { color: var(--bad); }
-.card.good-neutral .metric .v.pos, .card.good-neutral .metric .v.neg { color: var(--text); }
-.card.good-down .metric .v.pos { color: var(--bad); } .card.good-down .metric .v.neg { color: var(--good); }
-.spark-label { font-size: 10.5px; color: var(--faint); display: flex; justify-content: space-between; }
-svg.chart { display: block; width: 100%; height: 48px; overflow: visible; }
-svg.chart .line { fill: none; stroke: var(--line); stroke-width: 1.6; stroke-linejoin: round; }
-svg.chart.tone-good .line { stroke: var(--good); } svg.chart.tone-bad .line { stroke: var(--bad); }
-svg.chart .dot { fill: var(--line); } svg.chart.tone-good .dot { fill: var(--good); } svg.chart.tone-bad .dot { fill: var(--bad); }
-svg.chart .zero { stroke: var(--faint); stroke-dasharray: 3 3; stroke-width: 1; vector-effect: non-scaling-stroke; }
-svg.chart .grid { stroke: var(--border); stroke-width: 1; }
-svg.chart .axis { fill: var(--faint); font-size: 11px; }
-svg.chart.empty { height: 48px; } svg.chart.empty text { fill: var(--faint); font-size: 12px; }
-.range { position: relative; height: 4px; background: var(--surface-2); border-radius: 2px; margin: 4px 0 2px; }
-.range i { position: absolute; top: -3px; width: 10px; height: 10px; border-radius: 50%; background: var(--line); transform: translateX(-50%); border: 2px solid var(--surface); }
-.range-label { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--faint); }
-.lead { font-size: 12.5px; color: var(--muted); margin: 2px 0 0; }
-.accum { font-size: 11.5px; color: var(--warn); }
-details { border-top: 1px dashed var(--border); margin-top: 4px; padding-top: 4px; }
-details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); list-style: none; padding: 2px 0; }
+.value { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
+.value .num { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.value .unit { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.date { color: var(--faint); font-size: 11px; }
+.stale { color: var(--warn); background: var(--warn-bg); font-size: 10.5px; padding: 0 4px; border-radius: 3px; }
+.metrics { margin: 2px 0 0; display: grid; grid-template-columns: 1fr; gap: 0; }
+.metric { display: flex; justify-content: space-between; gap: 6px; padding: 2px 0; border-top: 1px solid var(--border); font-size: 12px; }
+.metric dt { color: var(--faint); white-space: nowrap; }
+.metric dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.metric dd.pos { color: var(--good); } .metric dd.neg { color: var(--bad); }
+.card.good-neutral .metric dd.pos, .card.good-neutral .metric dd.neg { color: var(--text); }
+.card.good-down .metric dd.pos { color: var(--bad); } .card.good-down .metric dd.neg { color: var(--good); }
+.accum { font-size: 11px; color: var(--warn); }
+details { border-top: 1px dashed var(--border); margin-top: 2px; padding-top: 2px; }
+details summary { cursor: pointer; font-size: 11.5px; color: var(--muted); list-style: none; padding: 2px 0; }
 details summary::-webkit-details-marker { display: none; }
 details summary::before { content: "▸ "; } details[open] summary::before { content: "▾ "; }
-details svg.chart { height: auto; aspect-ratio: 400 / 170; margin: 6px 0; }
-table.recent { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
-table.recent th, table.recent td { padding: 3px 4px; text-align: right; border-bottom: 1px solid var(--border); }
-table.recent th:first-child, table.recent td:first-child { text-align: left; color: var(--muted); }
-table.recent th { font-weight: 500; color: var(--faint); font-size: 11.5px; }
-.src { font-size: 11.5px; color: var(--faint); margin-top: 6px; }
+table.recent { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+table.recent td { padding: 2px 0; text-align: right; border-bottom: 1px solid var(--border); }
+table.recent td:first-child { text-align: left; color: var(--muted); }
+.src { font-size: 11px; margin-top: 4px; }
 
 .filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
 .filters button {
@@ -162,7 +152,6 @@ footer .msg { word-break: break-all; }
   header.top h1 { font-size: 14px; }
   .disc-row { grid-template-columns: 1fr; gap: 2px; }
   .disc-row .c { white-space: normal; }
-  .value .num { font-size: 22px; }
 }
 </style>
 </head>
@@ -192,7 +181,7 @@ footer .msg { word-break: break-all; }
       {% for c in movers %}<a class="chip {{ c.tone }}" href="#{{ c.id }}">{{ c.arrow }} {{ c.name }}</a>{% endfor %}
     </div>
     {% endif %}
-    <div class="legend">日次は3か月の変化、月次は前年比の加速・減速（3か月前の前年比との差）で向きを判定。関連銘柄にとっての追い風/逆風で色分け。</div>
+    <div class="legend">カードにカーソルを合わせると関連銘柄のメモ。日次は3か月の変化、月次は前年比の加速・減速（3か月前の前年比との差）で向きを判定。関連銘柄にとっての追い風/逆風で色分け。</div>
   </div>
 
   {% for g in groups %}
@@ -201,41 +190,26 @@ footer .msg { word-break: break-all; }
     <p class="note">{{ g.note }}</p>
     <div class="grid">
       {% for c in g.cards %}
-      <article class="card good-{{ c.good }}" id="{{ c.id }}">
-        <div class="head">
-          <h3>{{ c.name }}<span class="tag">{{ c.freq }}</span></h3>
-          <span class="badge {{ c.tone }}" title="{{ c.direction_label }}">{{ c.arrow }} {{ c.direction_label }}</span>
-        </div>
-        <div class="value">
-          <span class="num">{{ c.latest }}</span><span class="unit">{{ c.unit }}</span>
-          {% if c.stale %}<span class="stale">更新停止?</span>{% endif %}
-          <span class="date">{{ c.latest_date }}</span>
-        </div>
+      <article class="card good-{{ c.good }}" id="{{ c.id }}" title="{{ c.lead }}">
+        <h3>{{ c.name }}</h3>
+        <div class="sub"><span class="badge {{ c.tone }}">{{ c.arrow }} {{ c.direction_label }}</span><span class="tag">{{ c.freq }}</span></div>
+        <div class="value"><span class="num">{{ c.latest }}</span><span class="unit">{{ c.unit }}</span></div>
+        <div class="date">{{ c.latest_date }}{% if c.stale %} <span class="stale">更新停止?</span>{% endif %}</div>
         {% if c.has_metrics %}
-        <div class="metrics{% if c.metrics|length == 3 %} m3{% endif %}">
-          {% for m in c.metrics %}
-          <div class="metric"><div class="l">{{ m.label }}</div><div class="v {{ m.sign }}">{{ m.value }}</div></div>
-          {% endfor %}
-        </div>
+        <dl class="metrics">
+          {% for m in c.metrics %}<div class="metric"><dt>{{ m.label }}</dt><dd class="{{ m.sign }}">{{ m.value }}</dd></div>{% endfor %}
+          {% if c.range_pos is not none %}<div class="metric"><dt>1年レンジ内</dt><dd>{{ '%.0f' % c.range_pos }}%</dd></div>{% endif %}
+        </dl>
         {% endif %}
-        <div class="spark-label"><span>{{ c.chart_label }}</span></div>
-        {{ c.spark | safe }}
-        {% if c.range_pos is not none %}
-        <div class="range" title="過去1年のレンジ内の位置 {{ '%.0f' % c.range_pos }}%"><i style="left: {{ '%.1f' % c.range_pos }}%"></i></div>
-        <div class="range-label"><span>1年安値</span><span>レンジ内 {{ '%.0f' % c.range_pos }}%</span><span>1年高値</span></div>
-        {% endif %}
-        {% if c.accumulating %}<div class="accum">履歴蓄積中（{{ c.n }}日分）。変化率は日数が貯まると表示されます。</div>{% endif %}
-        <p class="lead">{{ c.lead }}</p>
+        {% if c.accumulating %}<div class="accum">蓄積中（{{ c.n }}日分）</div>{% endif %}
         <details>
-          <summary>詳細・推移</summary>
-          {{ c.big | safe }}
+          <summary>直近の値</summary>
           <table class="recent">
-            <thead><tr><th>{{ '月' if c.freq == '月次' else '日付' }}</th><th>値</th>{% if c.show_yoy_col %}<th>前年比</th>{% endif %}</tr></thead>
             <tbody>
             {% for r in c.recent %}<tr><td>{{ r.date }}</td><td>{{ r.value }}</td>{% if c.show_yoy_col %}<td>{{ r.yoy or '—' }}</td>{% endif %}</tr>{% endfor %}
             </tbody>
           </table>
-          <div class="src">出所: <a href="{{ c.source_url }}" rel="noopener" target="_blank">{{ c.source }}</a></div>
+          <div class="src"><a href="{{ c.source_url }}" rel="noopener" target="_blank">{{ c.source }}</a></div>
         </details>
       </article>
       {% endfor %}

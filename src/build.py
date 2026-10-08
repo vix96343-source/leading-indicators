@@ -6,7 +6,7 @@ from urllib.parse import quote
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import analyze, charts, store
+from . import analyze, store
 from .fetch import JST, STATUS_PATH, load_config, today_jst
 from .sources import tdnet, trendforce
 
@@ -30,20 +30,28 @@ def source_url(ind: dict) -> str:
     }[ind["source"]]()
 
 
+def fmt_num(v: float) -> str:
+    a = abs(v)
+    if a >= 1000:
+        return f"{v:,.0f}"
+    if a >= 100:
+        return f"{v:,.1f}"
+    if a >= 1:
+        return f"{v:,.2f}"
+    return f"{v:,.3f}"
+
+
 def fmt(v, unit="", signed=False):
     if v is None or pd.isna(v):
         return "—"
     if unit in ("%", "pt"):
         return f"{v:+.1f}{unit}" if signed else f"{v:.1f}{unit}"
-    return charts.fmt_num(v)
+    return fmt_num(v)
 
 
 def card(ind: dict, today: pd.Timestamp) -> dict:
     s = store.load(ind["id"]) * ind.get("scale", 1)
     a = analyze.summarize(ind, s, today)
-    yoy_chart = a.get("chart_kind") == "yoy"
-    chart = a.get("chart")
-    chart_unit = "%" if yoy_chart else ""
     recent = []
     for d, v in a.get("recent", []):
         y = a.get("recent_yoy", {}).get(d)
@@ -62,9 +70,6 @@ def card(ind: dict, today: pd.Timestamp) -> dict:
                     for l, v, u in a["metrics"]],
         "has_metrics": any(v is not None for _, v, _ in a["metrics"]),
         "range_pos": a.get("range_pos"),
-        "chart_label": "前年比 %（5年）" if yoy_chart else ("過去1年" if ind["freq"] == "daily" else "過去5年"),
-        "spark": charts.line(chart, 240, 48, zero_line=yoy_chart, tone=a["tone"]),
-        "big": charts.line(chart, 400, 170, zero_line=yoy_chart, axes=True, unit=chart_unit, tone=a["tone"]),
         "recent": recent,
         "show_yoy_col": ind["freq"] == "monthly" and ind.get("yoy"),
         "source": SOURCE_LABEL[ind["source"]], "source_url": source_url(ind),
