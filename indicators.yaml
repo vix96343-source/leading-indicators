@@ -1,0 +1,315 @@
+# 先行指標ダッシュボードの定義ファイル
+# 指標の追加・削除はここだけで行う（コード変更不要）。
+#
+# indicators[].source ごとの params:
+#   trendforce: page (dram_spot / flash_spot), item (表の品目名), field (列名)
+#   yfinance:   ticker
+#   fred:       series (FRED の系列ID)
+#   jmtba:      field (total / domestic / foreign / china / elec_precision)
+#   seaj:       field (semi_jp)
+#
+# good: up = 上昇が関連銘柄の追い風 / down = 低下が追い風 / neutral = 方向で良し悪しを付けない
+# scale: 表示時に値へ掛ける倍率（単位換算）  stale_days: 「更新停止?」と出すまでの日数
+# change: diff なら変化を率でなく差（pt）で表示（金利など）
+# restricted: true は `--public` ビルドで除外（転載制限のあるデータ）
+# yoy:  true なら月次の前年比と、その3か月前からの変化（加速/減速）を主表示にする
+
+site:
+  title: 先行指標ダッシュボード
+  timezone: Asia/Tokyo
+
+groups:
+  - id: memory
+    name: メモリ価格
+    note: TrendForce のスポット価格。履歴はこのツールが毎営業日取得して蓄積する（取得開始日より前は無い）。
+    public_note: メモリ大手の株価。スポット価格（TrendForce）は転載制限のため公開版には載せていない。
+  - id: industry
+    name: 業界統計（受注・出荷）
+    note: 月次統計。前年比と、その3か月前からの変化（加速/減速）を見る。
+  - id: macro
+    name: 景気先行（海外）
+    note: FRED（米セントルイス連銀）経由の月次統計。
+  - id: market
+    name: 市場ベース
+    note: 日次の価格・金利。1か月・3か月の変化と、過去1年のレンジ内の位置を見る。
+
+indicators:
+  # ── メモリ価格 ─────────────────────────────────────────────
+  - id: dram_ddr5_16g
+    group: memory
+    name: DDR5 16Gb スポット
+    source: trendforce
+    restricted: true   # TrendForce の価格表。公開サイトでは除外
+    params: {page: dram_spot, item: "DDR5 16Gb (2Gx8) 4800/5600", field: "Session Average"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: メモリ市況 → キオクシア・SKハイニックス・マイクロン、後工程装置
+  - id: dram_ddr4_16g
+    group: memory
+    name: DDR4 16Gb スポット
+    source: trendforce
+    restricted: true   # TrendForce の価格表。公開サイトでは除外
+    params: {page: dram_spot, item: "DDR4 16Gb (2Gx8) 3200", field: "Session Average"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: 旧世代DRAM。減産・EOLの需給を反映しやすい
+  - id: dram_ddr4_8g
+    group: memory
+    name: DDR4 8Gb スポット
+    source: trendforce
+    restricted: true   # TrendForce の価格表。公開サイトでは除外
+    params: {page: dram_spot, item: "DDR4 8Gb (1Gx8) 3200", field: "Session Average"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: 汎用DRAMの代表品目
+  - id: nand_512g_tlc
+    group: memory
+    name: NAND 512Gb TLC ウェハ
+    source: trendforce
+    restricted: true   # TrendForce の価格表。公開サイトでは除外
+    params: {page: flash_spot, item: "512Gb TLC", field: "Session Average"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: NAND市況 → キオクシア・WD/サンディスク
+  - id: nand_256g_tlc
+    group: memory
+    name: NAND 256Gb TLC ウェハ
+    source: trendforce
+    restricted: true   # TrendForce の価格表。公開サイトでは除外
+    params: {page: flash_spot, item: "256Gb TLC", field: "Session Average"}
+    unit: USD
+    freq: daily
+    good: up
+    lead: NAND市況
+  - id: mu
+    group: memory
+    name: マイクロン 株価
+    source: yfinance
+    params: {ticker: MU}
+    unit: USD
+    freq: daily
+    good: up
+    lead: メモリ市況の市場評価
+  - id: hynix
+    group: memory
+    name: SKハイニックス 株価
+    source: yfinance
+    params: {ticker: "000660.KS"}
+    unit: KRW
+    freq: daily
+    good: up
+    lead: HBM・DRAM市況の市場評価
+
+  # ── 業界統計 ───────────────────────────────────────────────
+  - id: jmtba_total
+    group: industry
+    name: 工作機械受注 総額
+    source: jmtba
+    params: {field: total}
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 設備投資の先行指標 → ファナック・DMG森精機・オークマ・THK
+  - id: jmtba_domestic
+    group: industry
+    name: 工作機械受注 内需
+    source: jmtba
+    params: {field: domestic}
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 国内製造業の設備投資
+  - id: jmtba_foreign
+    group: industry
+    name: 工作機械受注 外需
+    source: jmtba
+    params: {field: foreign}
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 海外製造業の設備投資
+  - id: jmtba_china
+    group: industry
+    name: 工作機械受注 中国
+    source: jmtba
+    params: {field: china}
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 中国の設備投資（確報ベース、速報より約3週遅れ）
+  - id: jmtba_elec
+    group: industry
+    name: 工作機械受注 内需 電気・精密
+    source: jmtba
+    params: {field: elec_precision}
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 国内の電子部品・半導体関連の設備投資（確報ベース）
+  - id: seaj_semi
+    group: industry
+    name: 日本製半導体製造装置 販売高(3MA)
+    source: seaj
+    params: {field: semi_jp}
+    unit: 百万円
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 東京エレクトロン・スクリーン・アドバンテスト・ディスコ
+    restricted: true   # SEAJ は無断転載禁止。公開サイトに出す場合は false にしない
+
+  # ── 景気先行（海外） ───────────────────────────────────────
+  - id: us_core_capex
+    group: macro
+    name: 米 コア資本財受注
+    source: fred
+    params: {series: NEWORDER}
+    unit: 百万ドル
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 米企業の設備投資（航空機・防衛除く）
+  - id: us_mfg_orders
+    group: macro
+    name: 米 製造業新規受注
+    source: fred
+    params: {series: AMTMNO}
+    unit: 百万ドル
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 米製造業全体の需要
+  - id: us_semi_ip
+    group: macro
+    name: 米 半導体・電子部品 生産指数
+    source: fred
+    params: {series: IPG3344S}
+    unit: 指数
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 半導体需要
+  - id: kr_exports
+    group: macro
+    name: 韓国 輸出額
+    source: fred
+    params: {series: XTEXVA01KRM667S}
+    scale: 1.0e-8      # ドル → 億ドル
+    unit: 億ドル
+    stale_days: 130    # 公表が約2か月遅れのため
+    freq: monthly
+    yoy: true
+    good: up
+    lead: 世界の電子部品・半導体需要の早耳（発表は約2か月遅れ）
+  - id: oecd_cli_jp
+    group: macro
+    name: OECD 景気先行指数 日本
+    source: fred
+    params: {series: JPNLOLITOAASTSAM}
+    unit: 指数
+    freq: monthly
+    good: up
+    lead: 100超=景気拡大方向
+  - id: oecd_cli_us
+    group: macro
+    name: OECD 景気先行指数 米国
+    source: fred
+    params: {series: USALOLITOAASTSAM}
+    unit: 指数
+    freq: monthly
+    good: up
+    lead: 100超=景気拡大方向
+
+  # ── 市場ベース ─────────────────────────────────────────────
+  - id: sox
+    group: market
+    name: フィラデルフィア半導体指数
+    source: yfinance
+    params: {ticker: "^SOX"}
+    unit: pt
+    freq: daily
+    good: up
+    lead: 半導体サイクル → 日本の半導体・装置株
+  - id: copper
+    group: market
+    name: 銅先物
+    source: yfinance
+    params: {ticker: "HG=F"}
+    unit: USD/lb
+    freq: daily
+    good: up
+    lead: 「ドクター・カッパー」世界景気の体温計
+  - id: bdry
+    group: market
+    name: ドライバルク運賃ETF (BDRY)
+    source: yfinance
+    params: {ticker: BDRY}
+    unit: USD
+    freq: daily
+    good: up
+    lead: バルチック海運指数の代替。海運株・資源需要
+  - id: kospi
+    group: market
+    name: KOSPI
+    source: yfinance
+    params: {ticker: "^KS11"}
+    unit: pt
+    freq: daily
+    good: up
+    lead: 輸出・半導体依存度が高く世界景気に先行しやすい
+  - id: us10y
+    group: market
+    name: 米10年債利回り
+    source: yfinance
+    params: {ticker: "^TNX"}
+    change: diff       # 金利は % 変化でなく pt 差で見る
+    unit: "%"
+    freq: daily
+    good: neutral
+    lead: グロース株の割引率
+  - id: us_curve
+    group: market
+    name: 米 長短金利差(10Y-2Y)
+    source: fred
+    params: {series: T10Y2Y}
+    change: diff       # 金利は % 変化でなく pt 差で見る
+    unit: "%pt"
+    freq: daily
+    good: neutral
+    lead: 逆イールド解消後は景気後退入りの警戒
+  - id: usdjpy
+    group: market
+    name: ドル円
+    source: yfinance
+    params: {ticker: "JPY=X"}
+    unit: 円
+    freq: daily
+    good: neutral
+    lead: 円安は輸出株の採算改善
+
+# ── 個社の先行開示（TDnet） ─────────────────────────────────
+# watchlist の銘柄は keywords のいずれかを含む開示をすべて表示。
+# universe_keywords は全上場企業から拾う（件数が多くなりすぎない語に限る）。
+companies:
+  lookback_days: 3          # 日次実行で遡る日数（backfill 時は 30）
+  keep_days: 120            # サイトに表示する期間
+  keywords: [月次, 受注, 出荷, 販売実績, 売上高速報, 営業状況, 速報]
+  universe_keywords: [受注]   # 大型受注のお知らせ・受注高の開示など
+  watchlist:
+    - {code: "6146", name: ディスコ}
+    - {code: "285A", name: キオクシアHD}
+    - {code: "6890", name: フェローテック}
+    - {code: "6315", name: TOWA}
+    - {code: "6141", name: DMG森精機}
+    - {code: "6103", name: オークマ}
+    - {code: "9962", name: ミスミグループ本社}
+    - {code: "3064", name: MonotaRO}

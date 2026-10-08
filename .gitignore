@@ -1,0 +1,11 @@
+__pycache__/
+.venv/
+.env
+*.pyc
+.pytest_cache/
+cache/
+local/
+# 転載制限のあるデータ（indicators.yaml の restricted: true）は公開リポジトリに入れない
+data/series/dram_*.csv
+data/series/nand_*.csv
+data/series/seaj_*.csv

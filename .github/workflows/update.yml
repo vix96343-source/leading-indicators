@@ -1,0 +1,61 @@
+name: update
+
+on:
+  schedule:
+    - cron: "0 10 * * 1-5"   # 平日 19:00 JST（TDnet 15時台の開示・TrendForce の当日値が出揃った後）
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: "過去分をまとめて取得する（初回用）"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: test
+        run: python -m pytest -q
+
+      - name: fetch
+        run: python -m src.cli fetch --public ${{ inputs.backfill && '--backfill' || '' }}
+
+      - name: build
+        # 公開サイトなので転載制限のある指標（TrendForce・SEAJ）は除外する
+        run: python -m src.cli build --public
+
+      - name: commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          git diff --cached --quiet || git commit -m "update $(TZ=Asia/Tokyo date +%F)"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4

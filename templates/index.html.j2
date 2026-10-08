@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{ title }}</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f0f2f5; --border: #e2e5ea;
+  --text: #16191d; --muted: #5f6873; --faint: #8a929c;
+  --accent: #3b5bdb;
+  --good: #0f8a5f; --good-bg: #e3f5ec; --bad: #c92a2a; --bad-bg: #fbe7e7;
+  --neutral: #5f6873; --neutral-bg: #eceef1; --warn: #b26a00; --warn-bg: #fff3dc;
+  --line: #3b5bdb;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1114; --surface: #171a1f; --surface-2: #1f232a; --border: #2a2f37;
+    --text: #e8eaed; --muted: #a2aab4; --faint: #737b86;
+    --accent: #7c9cff;
+    --good: #4cc38a; --good-bg: #12301f; --bad: #ff7b7b; --bad-bg: #3a1a1a;
+    --neutral: #a2aab4; --neutral-bg: #262a31; --warn: #f0b04a; --warn-bg: #33270f;
+    --line: #7c9cff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1114; --surface: #171a1f; --surface-2: #1f232a; --border: #2a2f37;
+  --text: #e8eaed; --muted: #a2aab4; --faint: #737b86;
+  --accent: #7c9cff;
+  --good: #4cc38a; --good-bg: #12301f; --bad: #ff7b7b; --bad-bg: #3a1a1a;
+  --neutral: #a2aab4; --neutral-bg: #262a31; --warn: #f0b04a; --warn-bg: #33270f;
+  --line: #7c9cff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.55 system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+  font-feature-settings: "palt";
+}
+a { color: var(--accent); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+header.top {
+  position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
+}
+header.top .wrap { display: flex; align-items: center; gap: 12px; min-height: 52px; }
+header.top h1 { font-size: 16px; margin: 0; white-space: nowrap; }
+nav.groups { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+nav.groups::-webkit-scrollbar { display: none; }
+nav.groups a {
+  white-space: nowrap; text-decoration: none; color: var(--muted); font-size: 13px;
+  padding: 4px 10px; border-radius: 999px; background: var(--surface-2);
+}
+.theme-btn {
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+  border-radius: 8px; padding: 4px 8px; font-size: 13px; cursor: pointer;
+}
+.updated { color: var(--faint); font-size: 12px; margin: 14px 0 0; }
+
+.summary {
+  margin: 12px 0 8px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+}
+.tally { display: flex; gap: 18px; flex-wrap: wrap; align-items: baseline; }
+.tally .k { font-size: 12px; color: var(--muted); }
+.tally .v { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; margin-left: 4px; }
+.tally .good .v { color: var(--good); } .tally .bad .v { color: var(--bad); }
+.movers { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip {
+  display: inline-flex; gap: 4px; align-items: center; font-size: 12.5px; text-decoration: none;
+  padding: 3px 9px; border-radius: 999px; background: var(--neutral-bg); color: var(--neutral);
+}
+.chip.good { background: var(--good-bg); color: var(--good); }
+.chip.bad { background: var(--bad-bg); color: var(--bad); }
+.legend { color: var(--faint); font-size: 12px; margin-top: 8px; }
+
+section.group { margin-top: 28px; scroll-margin-top: 64px; }
+section.group > h2 { font-size: 18px; margin: 0 0 2px; }
+section.group > p.note { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px 10px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+  scroll-margin-top: 64px;
+}
+.card .head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.card h3 { font-size: 14.5px; margin: 0; line-height: 1.35; }
+.tag { font-size: 11px; color: var(--faint); margin-left: 4px; font-weight: 400; }
+.badge {
+  flex: none; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px;
+  background: var(--neutral-bg); color: var(--neutral); white-space: nowrap;
+}
+.badge.good { background: var(--good-bg); color: var(--good); }
+.badge.bad { background: var(--bad-bg); color: var(--bad); }
+.value { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.value .num { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.value .unit { color: var(--muted); font-size: 12.5px; }
+.value .date { color: var(--faint); font-size: 12px; margin-left: auto; }
+.stale { color: var(--warn); background: var(--warn-bg); font-size: 11.5px; padding: 1px 6px; border-radius: 4px; }
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.metrics.m3 { grid-template-columns: repeat(3, 1fr); }
+.metric { background: var(--surface-2); border-radius: 6px; padding: 4px 6px; min-width: 0; }
+.metric .l { font-size: 10.5px; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.metric .v { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.metric .v.pos { color: var(--good); } .metric .v.neg { color: var(--bad); }
+.card.good-neutral .metric .v.pos, .card.good-neutral .metric .v.neg { color: var(--text); }
+.card.good-down .metric .v.pos { color: var(--bad); } .card.good-down .metric .v.neg { color: var(--good); }
+.spark-label { font-size: 10.5px; color: var(--faint); display: flex; justify-content: space-between; }
+svg.chart { display: block; width: 100%; height: 48px; overflow: visible; }
+svg.chart .line { fill: none; stroke: var(--line); stroke-width: 1.6; stroke-linejoin: round; }
+svg.chart.tone-good .line { stroke: var(--good); } svg.chart.tone-bad .line { stroke: var(--bad); }
+svg.chart .dot { fill: var(--line); } svg.chart.tone-good .dot { fill: var(--good); } svg.chart.tone-bad .dot { fill: var(--bad); }
+svg.chart .zero { stroke: var(--faint); stroke-dasharray: 3 3; stroke-width: 1; vector-effect: non-scaling-stroke; }
+svg.chart .grid { stroke: var(--border); stroke-width: 1; }
+svg.chart .axis { fill: var(--faint); font-size: 11px; }
+svg.chart.empty { height: 48px; } svg.chart.empty text { fill: var(--faint); font-size: 12px; }
+.range { position: relative; height: 4px; background: var(--surface-2); border-radius: 2px; margin: 4px 0 2px; }
+.range i { position: absolute; top: -3px; width: 10px; height: 10px; border-radius: 50%; background: var(--line); transform: translateX(-50%); border: 2px solid var(--surface); }
+.range-label { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--faint); }
+.lead { font-size: 12.5px; color: var(--muted); margin: 2px 0 0; }
+.accum { font-size: 11.5px; color: var(--warn); }
+details { border-top: 1px dashed var(--border); margin-top: 4px; padding-top: 4px; }
+details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); list-style: none; padding: 2px 0; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: "▸ "; } details[open] summary::before { content: "▾ "; }
+details svg.chart { height: auto; aspect-ratio: 400 / 170; margin: 6px 0; }
+table.recent { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+table.recent th, table.recent td { padding: 3px 4px; text-align: right; border-bottom: 1px solid var(--border); }
+table.recent th:first-child, table.recent td:first-child { text-align: left; color: var(--muted); }
+table.recent th { font-weight: 500; color: var(--faint); font-size: 11.5px; }
+.src { font-size: 11.5px; color: var(--faint); margin-top: 6px; }
+
+.filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.filters button {
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+  border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer;
+}
+.filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.disc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.disc-row { display: grid; grid-template-columns: 92px 150px 1fr; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; align-items: baseline; }
+.disc-row:last-child { border-bottom: 0; }
+.disc-row .d { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12.5px; }
+.disc-row .c { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.disc-row .c small { color: var(--faint); font-weight: 400; margin-right: 4px; }
+.disc-row .t { min-width: 0; }
+.disc-row .w { font-size: 10.5px; padding: 1px 6px; border-radius: 4px; background: var(--good-bg); color: var(--good); margin-right: 6px; white-space: nowrap; }
+.empty-msg { padding: 16px; color: var(--muted); font-size: 13.5px; }
+
+footer { margin: 40px 0 32px; color: var(--muted); font-size: 12.5px; }
+footer table { border-collapse: collapse; width: 100%; max-width: 720px; }
+footer td, footer th { text-align: left; padding: 4px 8px 4px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+footer .ok { color: var(--good); } footer .ng { color: var(--bad); }
+footer .msg { word-break: break-all; }
+
+@media (max-width: 640px) {
+  header.top h1 { font-size: 14px; }
+  .disc-row { grid-template-columns: 1fr; gap: 2px; }
+  .disc-row .c { white-space: normal; }
+  .value .num { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>{{ title }}</h1>
+    <nav class="groups" aria-label="セクション">
+      {% for g in groups %}<a href="#{{ g.id }}">{{ g.name }}</a>{% endfor %}
+      <a href="#companies">個社の開示</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="updated">更新 {{ generated_at }} JST{% if public %}（公開版: 転載制限のある指標を除外）{% endif %}</p>
+
+  <div class="summary">
+    <div class="tally">
+      <span class="good"><span class="k">追い風</span><span class="v">{{ tally.good }}</span></span>
+      <span class="bad"><span class="k">逆風</span><span class="v">{{ tally.bad }}</span></span>
+      <span><span class="k">横ばい・中立</span><span class="v">{{ tally.other }}</span></span>
+    </div>
+    {% if movers %}
+    <div class="movers">
+      {% for c in movers %}<a class="chip {{ c.tone }}" href="#{{ c.id }}">{{ c.arrow }} {{ c.name }}</a>{% endfor %}
+    </div>
+    {% endif %}
+    <div class="legend">日次は3か月の変化、月次は前年比の加速・減速（3か月前の前年比との差）で向きを判定。関連銘柄にとっての追い風/逆風で色分け。</div>
+  </div>
+
+  {% for g in groups %}
+  <section class="group" id="{{ g.id }}">
+    <h2>{{ g.name }}</h2>
+    <p class="note">{{ g.note }}</p>
+    <div class="grid">
+      {% for c in g.cards %}
+      <article class="card good-{{ c.good }}" id="{{ c.id }}">
+        <div class="head">
+          <h3>{{ c.name }}<span class="tag">{{ c.freq }}</span></h3>
+          <span class="badge {{ c.tone }}" title="{{ c.direction_label }}">{{ c.arrow }} {{ c.direction_label }}</span>
+        </div>
+        <div class="value">
+          <span class="num">{{ c.latest }}</span><span class="unit">{{ c.unit }}</span>
+          {% if c.stale %}<span class="stale">更新停止?</span>{% endif %}
+          <span class="date">{{ c.latest_date }}</span>
+        </div>
+        {% if c.has_metrics %}
+        <div class="metrics{% if c.metrics|length == 3 %} m3{% endif %}">
+          {% for m in c.metrics %}
+          <div class="metric"><div class="l">{{ m.label }}</div><div class="v {{ m.sign }}">{{ m.value }}</div></div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="spark-label"><span>{{ c.chart_label }}</span></div>
+        {{ c.spark | safe }}
+        {% if c.range_pos is not none %}
+        <div class="range" title="過去1年のレンジ内の位置 {{ '%.0f' % c.range_pos }}%"><i style="left: {{ '%.1f' % c.range_pos }}%"></i></div>
+        <div class="range-label"><span>1年安値</span><span>レンジ内 {{ '%.0f' % c.range_pos }}%</span><span>1年高値</span></div>
+        {% endif %}
+        {% if c.accumulating %}<div class="accum">履歴蓄積中（{{ c.n }}日分）。変化率は日数が貯まると表示されます。</div>{% endif %}
+        <p class="lead">{{ c.lead }}</p>
+        <details>
+          <summary>詳細・推移</summary>
+          {{ c.big | safe }}
+          <table class="recent">
+            <thead><tr><th>{{ '月' if c.freq == '月次' else '日付' }}</th><th>値</th>{% if c.show_yoy_col %}<th>前年比</th>{% endif %}</tr></thead>
+            <tbody>
+            {% for r in c.recent %}<tr><td>{{ r.date }}</td><td>{{ r.value }}</td>{% if c.show_yoy_col %}<td>{{ r.yoy or '—' }}</td>{% endif %}</tr>{% endfor %}
+            </tbody>
+          </table>
+          <div class="src">出所: <a href="{{ c.source_url }}" rel="noopener" target="_blank">{{ c.source }}</a></div>
+        </details>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <section class="group" id="companies">
+    <h2>個社の先行開示</h2>
+    <p class="note">TDnet から、ウォッチリスト銘柄の月次・受注・出荷系の開示と、全上場企業のタイトルに「受注」を含む開示を拾っています。
+      ウォッチリスト: {% for code, name in watch_names.items() %}{{ name }}({{ code }}){% if not loop.last %}、{% endif %}{% endfor %}</p>
+    <div class="filters" role="group" aria-label="表示する開示">
+      <button type="button" data-f="all" aria-pressed="true">すべて</button>
+      <button type="button" data-f="watchlist" aria-pressed="false">ウォッチリスト</button>
+      <button type="button" data-f="keyword" aria-pressed="false">受注キーワード</button>
+    </div>
+    <div class="disc" id="discList">
+      {% for d in disclosures %}
+      <div class="disc-row" data-m="{{ d.match }}">
+        <span class="d">{{ d.date[5:] }} {{ d.time }}</span>
+        <span class="c"><small>{{ d.code }}</small>{{ d.company }}</span>
+        <span class="t">{% if d.match == 'watchlist' %}<span class="w">注目</span>{% endif %}{% if d.url %}<a href="{{ d.url }}" target="_blank" rel="noopener">{{ d.title }}</a>{% else %}{{ d.title }}{% endif %}</span>
+      </div>
+      {% else %}
+      <div class="empty-msg">該当する開示はまだありません。</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <footer>
+    <h3 style="font-size:14px">データ取得状況</h3>
+    <table>
+      <thead><tr><th>ソース</th><th>状態</th><th>最終取得</th><th>メモ</th></tr></thead>
+      <tbody>
+      {% for s in status %}
+      <tr><td>{{ s.name }}</td><td class="{{ 'ok' if s.ok else 'ng' }}">{{ '正常' if s.ok else '失敗' }}</td><td>{{ s.at }}</td><td class="msg">{{ s.message }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p>各データの権利は出所の各機関に帰属します。個人の調査用で、投資判断を推奨するものではありません。</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  try { var t = localStorage.getItem('theme'); if (t) root.setAttribute('data-theme', t); } catch (e) {}
+  btn.addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark'
+      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+  var buttons = document.querySelectorAll('.filters button');
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      document.querySelectorAll('#discList .disc-row').forEach(function (r) {
+        r.hidden = b.dataset.f !== 'all' && r.dataset.m !== b.dataset.f;
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
