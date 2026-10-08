@@ -7,7 +7,7 @@
 #   jmtba:      field (total / domestic / foreign / china / elec_precision)
 #   seaj:       field (semi_jp)
 #   cao_surveys: field (watcher_future / watcher_current / consumer_confidence)
-#   esri:       field (ci_leading / juchu_core / juchu_foreign / juchu_total)
+#   esri:       field (juchu_core / juchu_foreign / juchu_total)
 #
 # good: up = 上昇が関連銘柄の追い風 / down = 低下が追い風 / neutral = 方向で良し悪しを付けない
 # scale: 表示時に値へ掛ける倍率（単位換算）  stale_days: 「更新停止?」と出すまでの日数
@@ -26,13 +26,13 @@ groups:
     public_note: メモリ大手の株価。TrendForce の価格は規約上公開できないため、手元の全指標版（local/index.html）にだけ載せている。
   - id: japan
     name: 国内景気
-    note: 内閣府の景気動向指数・機械受注・景気ウォッチャー・消費者態度指数と、日本の輸出。
+    note: 内閣府の機械受注・景気ウォッチャー・消費者態度指数と、日本の輸出。
   - id: industry
     name: 業界統計（受注・出荷）
     note: 月次統計。前年比と、その3か月前からの変化（加速/減速）を見る。
   - id: macro
     name: 海外景気
-    note: OECD 景気先行指数と各国の輸出・生産（FRED）。
+    note: 海外の輸出・生産（FRED）。
   - id: us
     name: 米国景気
     note: 米国の受注・住宅・雇用・企業景況感（FRED）。
@@ -67,15 +67,6 @@ indicators:
     lead: HBM・DRAM市況の市場評価
 
   # ── 国内景気 ───────────────────────────────────────────────
-  - id: ci_leading
-    group: japan
-    name: 景気動向指数 CI先行
-    source: esri
-    params: {field: ci_leading}
-    unit: 2020年=100
-    freq: monthly
-    good: up
-    lead: 内閣府の先行11系列の合成。景気の山・谷に数か月先行
   - id: juchu_core
     group: japan
     name: コア機械受注（船舶・電力除く民需）
@@ -247,52 +238,7 @@ indicators:
     yoy: true
     good: up
     lead: 世界の電子部品・半導体需要の早耳（発表は約2か月遅れ）
-  - id: oecd_cli_jp
-    group: macro
-    name: OECD 景気先行指数 日本
-    source: fred
-    params: {series: JPNLOLITOAASTSAM}
-    unit: 指数
-    freq: monthly
-    good: up
-    lead: 100超=景気拡大方向
-  - id: oecd_cli_us
-    group: macro
-    name: OECD 景気先行指数 米国
-    source: fred
-    params: {series: USALOLITOAASTSAM}
-    unit: 指数
-    freq: monthly
-    good: up
-    lead: 100超=景気拡大方向
 
-  - id: oecd_cli_cn
-    group: macro
-    name: OECD 景気先行指数 中国
-    source: fred
-    params: {series: CHNLOLITOAASTSAM}
-    unit: 指数
-    freq: monthly
-    good: up
-    lead: 中国向け設備投資・素材需要
-  - id: oecd_cli_de
-    group: macro
-    name: OECD 景気先行指数 ドイツ
-    source: fred
-    params: {series: DEULOLITOAASTSAM}
-    unit: 指数
-    freq: monthly
-    good: up
-    lead: 欧州製造業
-  - id: oecd_cli_kr
-    group: macro
-    name: OECD 景気先行指数 韓国
-    source: fred
-    params: {series: KORLOLITOAASTSAM}
-    unit: 指数
-    freq: monthly
-    good: up
-    lead: 半導体・電子部品サイクル
 
   # ── 米国景気 ───────────────────────────────────────────────
   - id: us_durable

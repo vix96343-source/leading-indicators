@@ -27,8 +27,7 @@ def source_url(ind: dict) -> str:
         "jmtba": lambda: "https://www.jmtba.or.jp/statistics/",
         "cao_surveys": lambda: ("https://www.esri.cao.go.jp/jp/stat/shouhi/shouhi.html" if p["field"] == "consumer_confidence"
                                 else "https://www5.cao.go.jp/keizai3/watcher_index.html"),
-        "esri": lambda: ("https://www.esri.cao.go.jp/jp/stat/di/di.html" if p["field"] == "ci_leading"
-                         else "https://www.esri.cao.go.jp/jp/stat/juchu/juchu.html"),
+        "esri": lambda: "https://www.esri.cao.go.jp/jp/stat/juchu/juchu.html",
         "seaj": lambda: "https://www.seaj.or.jp/statistics/",
     }[ind["source"]]()
 

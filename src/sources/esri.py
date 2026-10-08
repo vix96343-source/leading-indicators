@@ -1,6 +1,5 @@
 """内閣府 経済社会総合研究所（ESRI）の統計。
 
-- 景気動向指数（CI）: 1007ci.xlsx に 1980 年以降の全月が載る。先行指数を使う。
 - 機械受注統計: 毎月の公表ページの CSV（季節調整値、直近 13 か月分）。過去分は過去の公表回から集める。
   民需（船舶・電力を除く）＝いわゆる「コア機械受注」、設備投資の先行指標。
 """
@@ -12,20 +11,11 @@ import pandas as pd
 
 from .. import http
 
-CI_URL = "https://www.esri.cao.go.jp/jp/stat/di/1007ci.xlsx"
 JUCHU_INDEX = "https://www.esri.cao.go.jp/jp/stat/juchu/juchu.html"
 JUCHU_BASE = "https://www.esri.cao.go.jp"
 # 季調系列 CSV（-1.csv）の列位置: 合計, 船舶除く, 外需, 官公需, 民需, 民需(船舶除く), 民需(船舶・電力除く)
 JUCHU_COLS = {"juchu_total": 4, "juchu_foreign": 6, "juchu_core": 10}
 BACKFILL_FROM = 2019
-
-
-def parse_ci(xlsx: bytes) -> pd.Series:
-    """CI 先行指数（2020年=100）。列は 0:時間軸コード 1:西暦年 2:月 3:先行指数。"""
-    df = pd.read_excel(io.BytesIO(xlsx), sheet_name=0, header=None)
-    rows = df[pd.to_numeric(df[1], errors="coerce").notna() & pd.to_numeric(df[3], errors="coerce").notna()]
-    idx = [pd.Timestamp(int(y), int(m), 1) for y, m in zip(rows[1], rows[2])]
-    return pd.Series(pd.to_numeric(rows[3]).values, index=idx, dtype=float)
 
 
 def _num(s: str):
@@ -78,8 +68,6 @@ def list_juchu_releases(html: str) -> list[str]:
 def fetch(indicators: list[dict], today: pd.Timestamp, backfill: bool = False) -> dict[str, pd.Series]:
     fields = {ind["params"]["field"]: ind["id"] for ind in indicators}
     out = {}
-    if "ci_leading" in fields:
-        out[fields["ci_leading"]] = parse_ci(http.get(CI_URL).content)
 
     want = [f for f in fields if f in JUCHU_COLS]
     if want:
