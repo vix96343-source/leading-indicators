@@ -6,6 +6,7 @@
 #   fred:       series (FRED の系列ID)
 #   jmtba:      field (total / domestic / foreign / china / elec_precision)
 #   seaj:       field (semi_jp)
+#   cao_surveys: field (watcher_future / watcher_current / consumer_confidence)
 #   esri:       field (ci_leading / juchu_core / juchu_foreign / juchu_total)
 #
 # good: up = 上昇が関連銘柄の追い風 / down = 低下が追い風 / neutral = 方向で良し悪しを付けない
@@ -25,7 +26,7 @@ groups:
     public_note: メモリ大手の株価。TrendForce の価格は規約上公開できないため、手元の全指標版（local/index.html）にだけ載せている。
   - id: japan
     name: 国内景気
-    note: 内閣府の景気動向指数・機械受注と、日本の輸出。
+    note: 内閣府の景気動向指数・機械受注・景気ウォッチャー・消費者態度指数と、日本の輸出。
   - id: industry
     name: 業界統計（受注・出荷）
     note: 月次統計。前年比と、その3か月前からの変化（加速/減速）を見る。
@@ -97,6 +98,36 @@ indicators:
     yoy: true
     good: up
     lead: 海外からの機械受注（季調値）
+  - id: watcher_future
+    group: japan
+    name: 景気ウォッチャー 先行き判断DI
+    source: cao_surveys
+    params: {field: watcher_future}
+    change: diff
+    unit: DI
+    freq: monthly
+    good: up
+    lead: 小売・飲食・タクシー・企業などの現場の2〜3か月先の見方（50が中立）。毎月8日前後に前月分
+  - id: watcher_current
+    group: japan
+    name: 景気ウォッチャー 現状判断DI
+    source: cao_surveys
+    params: {field: watcher_current}
+    change: diff
+    unit: DI
+    freq: monthly
+    good: up
+    lead: 現場の景況感（50が中立）
+  - id: consumer_confidence
+    group: japan
+    name: 消費者態度指数
+    source: cao_surveys
+    params: {field: consumer_confidence}
+    change: diff
+    unit: 指数
+    freq: monthly
+    good: up
+    lead: 景気動向指数の先行系列の1つ。内需・小売
   - id: jp_exports
     group: japan
     name: 日本 輸出額

@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.sources import fred, jmtba, seaj, trendforce
+from src.sources import cao_surveys, esri, fred, jmtba, seaj, trendforce
 
 FX = Path(__file__).parent / "fixtures"
 
@@ -79,3 +79,33 @@ def test_fred_api_json():
                                          {"date": "2026-02-01", "value": "."}]})
     assert list(s.values) == [1.5]
 
+
+
+def test_watcher_text():
+    # PDF は全角（令和８年、ＤＩ）だが、読み込み時に NFKC で半角にそろえた後の文章
+    text = ("景気ウォッチャー調査 令和8年9月調査結果 令和8年10月8日 "
+            "9月の現状判断DI(季節調整値)は、前月差0.6 ポイント上昇の47.0 となった。 "
+            "9月の先行き判断DI(季節調整値)は、前月差0.9 ポイント低下の47.4 と なった。")  # 改行で分かれた形
+    got = cao_surveys.parse_watcher(text)
+    assert got["watcher_future"] == (pd.Timestamp(2026, 9, 1), 47.4)
+    assert got["watcher_current"] == (pd.Timestamp(2026, 9, 1), 47.0)
+
+
+def test_consumer_confidence_text():
+    text = "令和8(2026)年8月の消費者態度指数は、前月差0.6 ポイント上昇し35.5 であった(第1表 参照)。"
+    assert cao_surveys.parse_shouhi(text) == (pd.Timestamp(2026, 8, 1), 35.5)
+
+
+def test_esri_juchu_csv():
+    rows = [
+        '[季調系列],,,,,,需要者別受注額,,,,',
+        ',,2025年 7- 9月,,"9,000",1,2,3,4,5,"7,000"',      # 四半期の行は無視
+        ',,2025年 12月,,"3,000",1,"1,500",3,4,5,"900"',
+        ',,2026年 1月,,"3,100",1,"1,600",3,4,5,"950"',
+        ',,            2月,,"3,200",1,"1,700",3,4,5,"990"',  # 年の無い行は直前の年
+        ',前期(月)比,2025年 12月,,1.0,1,2,3,4,5,6',         # 変化率の表で打ち切り
+    ]
+    got = esri.parse_juchu_csv("\n".join(rows))
+    assert got["juchu_core"].to_dict() == {pd.Timestamp(2025, 12, 1): 900.0, pd.Timestamp(2026, 1, 1): 950.0,
+                                           pd.Timestamp(2026, 2, 1): 990.0}
+    assert got["juchu_foreign"][pd.Timestamp(2026, 2, 1)] == 1700.0

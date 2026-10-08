@@ -8,12 +8,12 @@ import pandas as pd
 import yaml
 
 from . import store
-from .sources import esri, fred, jmtba, seaj, trendforce, yf
+from .sources import cao_surveys, esri, fred, jmtba, seaj, trendforce, yf
 
 JST = ZoneInfo("Asia/Tokyo")
 CONFIG_PATH = store.ROOT / "indicators.yaml"
 STATUS_PATH = store.ROOT / "data" / "status.json"
-SOURCES = {"esri": esri, "fred": fred, "yfinance": yf, "jmtba": jmtba, "seaj": seaj}
+SOURCES = {"cao_surveys": cao_surveys, "esri": esri, "fred": fred, "yfinance": yf, "jmtba": jmtba, "seaj": seaj}
 
 
 def load_config() -> dict:
