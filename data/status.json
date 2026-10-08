@@ -7,13 +7,13 @@
   },
   "yfinance": {
     "ok": true,
-    "at": "2026-10-08T15:45:33+09:00",
-    "updated_rows": 295,
+    "at": "2026-10-08T15:49:26+09:00",
+    "updated_rows": 294,
     "message": ""
   },
   "jmtba": {
     "ok": true,
-    "at": "2026-10-08T15:45:35+09:00",
+    "at": "2026-10-08T15:49:28+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -24,14 +24,13 @@
     "message": ""
   },
   "fred": {
-    "ok": true,
-    "at": "2026-10-08T15:45:40+09:00",
-    "updated_rows": 59,
-    "message": ""
+    "ok": false,
+    "at": "2026-10-08T15:49:33+09:00",
+    "message": "ReadTimeout: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=30)"
   },
   "tdnet": {
     "ok": true,
-    "at": "2026-10-08T15:45:46+09:00",
+    "at": "2026-10-08T15:51:10+09:00",
     "updated_rows": 0,
     "message": ""
   }
