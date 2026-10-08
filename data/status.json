@@ -7,13 +7,13 @@
   },
   "yfinance": {
     "ok": true,
-    "at": "2026-10-08T17:57:18+09:00",
-    "updated_rows": 1,
+    "at": "2026-10-08T18:12:19+09:00",
+    "updated_rows": 3,
     "message": ""
   },
   "jmtba": {
     "ok": true,
-    "at": "2026-10-08T17:57:20+09:00",
+    "at": "2026-10-08T18:18:40+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -25,12 +25,18 @@
   },
   "fred": {
     "ok": false,
-    "at": "2026-10-08T17:57:24+09:00",
-    "message": "RuntimeError: FRED: 全系列失敗 NEWORDER: ReadTimeout / AMTMNO: ReadTimeout"
+    "at": "2026-10-08T18:12:25+09:00",
+    "message": "RuntimeError: FRED: 全系列失敗 XTEXVA01JPM667S: ReadTimeout / NEWORDER: ReadTimeout"
   },
   "stocks": {
     "ok": true,
     "at": "2026-10-08T17:53:21+09:00",
+    "updated_rows": 0,
+    "message": ""
+  },
+  "esri": {
+    "ok": true,
+    "at": "2026-10-08T18:12:21+09:00",
     "updated_rows": 0,
     "message": ""
   }
