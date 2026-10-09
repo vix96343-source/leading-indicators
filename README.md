@@ -39,6 +39,13 @@ python -m venv .venv
 .venv\Scripts\python -m pytest -q
 ```
 
+## 更新ボタン
+
+公開ページ右上の「↻ 更新」で GitHub Actions のワークフローを起動し、完了後にページを読み込み直す。
+初回はトークンを聞かれる。GitHub の Settings → Developer settings → Fine-grained tokens で、
+このリポジトリだけに「Actions: Read and write」を付けたトークンを作って貼り付ける（そのブラウザの localStorage にだけ保存）。
+トークンを使わない場合は、ダイアログのリンクから GitHub の「Run workflow」で実行できる。
+
 ## 公開版と全指標版
 
 TrendForce と SEAJ のデータは転載制限がある（SEAJ は「許可なく転載・公表を禁止」と明記）ため、

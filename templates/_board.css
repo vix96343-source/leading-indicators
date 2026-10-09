@@ -58,3 +58,14 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
 footer table { width: auto; }
 footer td, footer th { text-align: left; padding: 3px 10px 3px 0; border: 0; border-top: 1px solid var(--border); background: transparent; white-space: normal; }
 footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
+.refresh-btn { color: var(--text); }
+.refresh-btn:disabled { opacity: .5; cursor: wait; }
+.refresh-status { margin: 0 0 8px; padding: 6px 10px; background: var(--group-bg); color: var(--group); font-size: 12.5px; }
+dialog#tokenDlg { max-width: 520px; width: calc(100% - 32px); background: var(--row); color: var(--text);
+  border: 1px solid var(--border); padding: 14px 16px; font-size: 13px; line-height: 1.6; }
+dialog#tokenDlg::backdrop { background: rgba(0,0,0,.6); }
+dialog#tokenDlg h3 { margin: 0 0 6px; font-size: 15px; }
+dialog#tokenDlg code { font-size: 12px; }
+dialog#tokenDlg input { width: 100%; padding: 6px 8px; background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.dlg-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.dlg-btns button { border: 1px solid var(--border); background: var(--head); color: var(--text); padding: 4px 12px; cursor: pointer; }

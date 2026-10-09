@@ -66,6 +66,17 @@ footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
 footer table { width: auto; }
 footer td, footer th { text-align: left; padding: 3px 10px 3px 0; border: 0; border-top: 1px solid var(--border); background: transparent; white-space: normal; }
 footer .ok { color: var(--muted); } footer .ng { color: var(--up); }
+.refresh-btn { color: var(--text); }
+.refresh-btn:disabled { opacity: .5; cursor: wait; }
+.refresh-status { margin: 0 0 8px; padding: 6px 10px; background: var(--group-bg); color: var(--group); font-size: 12.5px; }
+dialog#tokenDlg { max-width: 520px; width: calc(100% - 32px); background: var(--row); color: var(--text);
+  border: 1px solid var(--border); padding: 14px 16px; font-size: 13px; line-height: 1.6; }
+dialog#tokenDlg::backdrop { background: rgba(0,0,0,.6); }
+dialog#tokenDlg h3 { margin: 0 0 6px; font-size: 15px; }
+dialog#tokenDlg code { font-size: 12px; }
+dialog#tokenDlg input { width: 100%; padding: 6px 8px; background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.dlg-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.dlg-btns button { border: 1px solid var(--border); background: var(--head); color: var(--text); padding: 4px 12px; cursor: pointer; }
 /* 右側の関連企業パネル */
 .wrap { max-width: 1320px; }
 .layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 12px; align-items: start; }
@@ -97,10 +108,31 @@ tr.s.sel td { background: var(--sel) !important; }
 <div class="wrap">
   <div class="top">
     <h1>先行指標ダッシュボード</h1>
-    <span class="meta">更新 2026/10/09 22:00 ／ 公開版</span>
+    <span class="meta">更新 2026/10/09 22:11 ／ 公開版</span>
     <span class="spacer"></span>
+    <button class="theme-btn refresh-btn" id="refreshBtn" type="button">↻ 更新</button>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
   </div>
+  
+  <div class="refresh-status" id="refreshStatus" hidden></div>
+  <dialog id="tokenDlg">
+    <form method="dialog">
+      <h3>更新ボタンの設定</h3>
+      <p>更新は GitHub Actions で動きます。次のどちらかを選んでください。</p>
+      <p><b>A. 毎回 GitHub で実行する</b>（設定不要。GitHub にログインが必要）<br>
+        <a href="https://github.com/vix96343-source/leading-indicators/actions/workflows/update.yml" target="_blank" rel="noopener">GitHub の実行ページを開く</a> → 「Run workflow」</p>
+      <p><b>B. このボタンだけで実行する</b>（初回だけトークンを入力）<br>
+        GitHub の Settings → Developer settings → Fine-grained tokens で、
+        リポジトリ <code>vix96343-source/leading-indicators</code> だけに「Actions: Read and write」を付けたトークンを作り、貼り付けてください。
+        トークンはこのブラウザの中にだけ保存され、ページや他の人には送られません。</p>
+      <input id="tokenInput" type="password" autocomplete="off" placeholder="github_pat_...">
+      <div class="dlg-btns">
+        <button value="cancel" type="submit">閉じる</button>
+        <button id="tokenSave" value="save" type="submit">保存して更新</button>
+      </div>
+    </form>
+  </dialog>
+  
   <p class="summary">行を押すと関連企業（日本株・米国株）を表示</p>
 
   <div class="layout">
@@ -515,6 +547,69 @@ tr.s.sel td { background: var(--sel) !important; }
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('boardTheme', next); } catch (e) {}
   });
+
+  // ── 更新ボタン: GitHub Actions のワークフローを起動し、終わったら再読み込み ──
+  var refreshBtn = document.getElementById('refreshBtn');
+  if (refreshBtn) {
+    var REPO = "vix96343-source/leading-indicators", WF = "update.yml", KEY = 'ghDispatchToken';
+    var api = 'https://api.github.com/repos/' + REPO + '/actions';
+    var statusEl = document.getElementById('refreshStatus'), dlg = document.getElementById('tokenDlg');
+    var getToken = function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+    var say = function (msg) { statusEl.hidden = !msg; statusEl.textContent = msg || ''; };
+    var gh = function (path, opts) {
+      opts = opts || {};
+      opts.headers = { 'Authorization': 'Bearer ' + getToken(), 'Accept': 'application/vnd.github+json' };
+      return fetch(api + path, opts);
+    };
+    var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+    async function run() {
+      refreshBtn.disabled = true;
+      var started = Date.now();
+      try {
+        var r = await gh('/workflows/' + WF + '/dispatches', { method: 'POST', body: JSON.stringify({ ref: 'main' }) });
+        if (r.status === 401 || r.status === 403 || r.status === 404) {
+          try { localStorage.removeItem(KEY); } catch (e) {}
+          say('トークンが無効です（権限か期限を確認してください）。');
+          dlg.showModal();
+          return;
+        }
+        if (!r.ok) throw new Error('起動に失敗 (' + r.status + ')');
+        say('更新を開始しました…（数分かかります）');
+        // 起動した実行を探して、完了まで待つ
+        var runId = null;
+        for (var i = 0; i < 80; i++) {
+          await wait(15000);
+          var sec = Math.round((Date.now() - started) / 1000);
+          var list = await (await gh('/workflows/' + WF + '/runs?event=workflow_dispatch&per_page=1')).json();
+          var w = list.workflow_runs && list.workflow_runs[0];
+          if (w && new Date(w.created_at).getTime() >= started - 60000) runId = w.id;
+          if (!runId) { say('更新を開始しました…（' + sec + '秒）'); continue; }
+          if (w.status !== 'completed') { say('データ取得中…（' + sec + '秒）'); continue; }
+          if (w.conclusion !== 'success') { say('更新に失敗しました（GitHub の実行ログを確認してください）'); return; }
+          say('完了。ページを読み込み直します…');
+          await wait(20000);  // Pages の反映待ち
+          location.replace(location.pathname + '?t=' + Date.now());
+          return;
+        }
+        say('時間がかかっています。しばらくしてから再読み込みしてください。');
+      } catch (e) {
+        say('更新できませんでした: ' + e.message);
+      } finally {
+        refreshBtn.disabled = false;
+      }
+    }
+
+    refreshBtn.addEventListener('click', function () { getToken() ? run() : dlg.showModal(); });
+    dlg.addEventListener('close', function () {
+      var v = document.getElementById('tokenInput').value.trim();
+      document.getElementById('tokenInput').value = '';
+      if (dlg.returnValue === 'save' && v) {
+        try { localStorage.setItem(KEY, v); } catch (e) { say('このブラウザではトークンを保存できません'); return; }
+        run();
+      }
+    });
+  }
 
   var baskets = JSON.parse(document.getElementById('baskets').textContent);
   var panel = document.getElementById('panel');

@@ -190,6 +190,7 @@ def build(public: bool = False) -> str:
         title=cfg["site"]["title"],
         generated_at=datetime.now(JST).strftime("%Y/%m/%d %H:%M"),
         groups=groups, columns=COLUMNS,
+        repo=cfg["site"].get("repo", ""), workflow=cfg["site"].get("workflow", "update.yml"),
         baskets=basket_data({r["related"] for g in groups for r in g["rows"] if r["related"]}),
         status=status_rows, public=public,
     )

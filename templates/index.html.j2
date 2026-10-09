@@ -40,8 +40,29 @@ tr.s.sel td { background: var(--sel) !important; }
     <h1>{{ title }}</h1>
     <span class="meta">更新 {{ generated_at }}{% if public %} ／ 公開版{% endif %}</span>
     <span class="spacer"></span>
+    {% if public and repo %}<button class="theme-btn refresh-btn" id="refreshBtn" type="button">↻ 更新</button>{% endif %}
     <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
   </div>
+  {% if public and repo %}
+  <div class="refresh-status" id="refreshStatus" hidden></div>
+  <dialog id="tokenDlg">
+    <form method="dialog">
+      <h3>更新ボタンの設定</h3>
+      <p>更新は GitHub Actions で動きます。次のどちらかを選んでください。</p>
+      <p><b>A. 毎回 GitHub で実行する</b>（設定不要。GitHub にログインが必要）<br>
+        <a href="https://github.com/{{ repo }}/actions/workflows/{{ workflow }}" target="_blank" rel="noopener">GitHub の実行ページを開く</a> → 「Run workflow」</p>
+      <p><b>B. このボタンだけで実行する</b>（初回だけトークンを入力）<br>
+        GitHub の Settings → Developer settings → Fine-grained tokens で、
+        リポジトリ <code>{{ repo }}</code> だけに「Actions: Read and write」を付けたトークンを作り、貼り付けてください。
+        トークンはこのブラウザの中にだけ保存され、ページや他の人には送られません。</p>
+      <input id="tokenInput" type="password" autocomplete="off" placeholder="github_pat_...">
+      <div class="dlg-btns">
+        <button value="cancel" type="submit">閉じる</button>
+        <button id="tokenSave" value="save" type="submit">保存して更新</button>
+      </div>
+    </form>
+  </dialog>
+  {% endif %}
   <p class="summary">行を押すと関連企業（日本株・米国株）を表示</p>
 
   <div class="layout">
@@ -101,6 +122,69 @@ tr.s.sel td { background: var(--sel) !important; }
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('boardTheme', next); } catch (e) {}
   });
+
+  // ── 更新ボタン: GitHub Actions のワークフローを起動し、終わったら再読み込み ──
+  var refreshBtn = document.getElementById('refreshBtn');
+  if (refreshBtn) {
+    var REPO = {{ repo | tojson }}, WF = {{ workflow | tojson }}, KEY = 'ghDispatchToken';
+    var api = 'https://api.github.com/repos/' + REPO + '/actions';
+    var statusEl = document.getElementById('refreshStatus'), dlg = document.getElementById('tokenDlg');
+    var getToken = function () { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+    var say = function (msg) { statusEl.hidden = !msg; statusEl.textContent = msg || ''; };
+    var gh = function (path, opts) {
+      opts = opts || {};
+      opts.headers = { 'Authorization': 'Bearer ' + getToken(), 'Accept': 'application/vnd.github+json' };
+      return fetch(api + path, opts);
+    };
+    var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+    async function run() {
+      refreshBtn.disabled = true;
+      var started = Date.now();
+      try {
+        var r = await gh('/workflows/' + WF + '/dispatches', { method: 'POST', body: JSON.stringify({ ref: 'main' }) });
+        if (r.status === 401 || r.status === 403 || r.status === 404) {
+          try { localStorage.removeItem(KEY); } catch (e) {}
+          say('トークンが無効です（権限か期限を確認してください）。');
+          dlg.showModal();
+          return;
+        }
+        if (!r.ok) throw new Error('起動に失敗 (' + r.status + ')');
+        say('更新を開始しました…（数分かかります）');
+        // 起動した実行を探して、完了まで待つ
+        var runId = null;
+        for (var i = 0; i < 80; i++) {
+          await wait(15000);
+          var sec = Math.round((Date.now() - started) / 1000);
+          var list = await (await gh('/workflows/' + WF + '/runs?event=workflow_dispatch&per_page=1')).json();
+          var w = list.workflow_runs && list.workflow_runs[0];
+          if (w && new Date(w.created_at).getTime() >= started - 60000) runId = w.id;
+          if (!runId) { say('更新を開始しました…（' + sec + '秒）'); continue; }
+          if (w.status !== 'completed') { say('データ取得中…（' + sec + '秒）'); continue; }
+          if (w.conclusion !== 'success') { say('更新に失敗しました（GitHub の実行ログを確認してください）'); return; }
+          say('完了。ページを読み込み直します…');
+          await wait(20000);  // Pages の反映待ち
+          location.replace(location.pathname + '?t=' + Date.now());
+          return;
+        }
+        say('時間がかかっています。しばらくしてから再読み込みしてください。');
+      } catch (e) {
+        say('更新できませんでした: ' + e.message);
+      } finally {
+        refreshBtn.disabled = false;
+      }
+    }
+
+    refreshBtn.addEventListener('click', function () { getToken() ? run() : dlg.showModal(); });
+    dlg.addEventListener('close', function () {
+      var v = document.getElementById('tokenInput').value.trim();
+      document.getElementById('tokenInput').value = '';
+      if (dlg.returnValue === 'save' && v) {
+        try { localStorage.setItem(KEY, v); } catch (e) { say('このブラウザではトークンを保存できません'); return; }
+        run();
+      }
+    });
+  }
 
   var baskets = JSON.parse(document.getElementById('baskets').textContent);
   var panel = document.getElementById('panel');
