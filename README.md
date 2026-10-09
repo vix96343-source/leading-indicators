@@ -1,7 +1,7 @@
 # 先行指標ダッシュボード
 
 業界統計（半導体・機械・住宅・鉄鋼・観光）と素材価格を中心に、先行指標を 1 ページにまとめる。
-Python で取得 → 静的 HTML を生成 → GitHub Actions で平日 19:00 JST に自動更新 → GitHub Pages で閲覧（スマホ前提）。
+Python で取得 → 静的 HTML を生成 → GitHub Actions で平日 19:17・21:17・23:17・翌朝 7:17（JST）に自動更新 → GitHub Pages で閲覧（スマホ前提）。
 
 ## 載せている指標
 
@@ -49,7 +49,7 @@ TrendForce と SEAJ のデータは転載制限がある（SEAJ は「許可な�
 | コマンド | `python -m src.cli run --public` | `python -m src.cli run` |
 | 出力 | `docs/index.html` | `local/index.html`（git 管理外） |
 | TrendForce・SEAJ | 取得も表示もしない | 含む |
-| 更新 | GitHub Actions が平日 19:00 JST | 手動（またはタスクスケジューラ） |
+| 更新 | GitHub Actions が平日 1日4回 | 手動（またはタスクスケジューラ） |
 
 - 制限付きデータの CSV（`data/series/dram_*`・`nand_*`・`seaj_*`）は `.gitignore` 済みで、手元にだけ貯まる。
   メモリスポット価格の履歴を貯めたい場合は、手元で毎営業日 `run` を実行する。
