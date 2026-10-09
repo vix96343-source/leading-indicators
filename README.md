@@ -1,7 +1,7 @@
 # 先行指標ダッシュボード
 
 業界統計（半導体・機械・住宅・鉄鋼・観光）と素材価格を中心に、先行指標を 1 ページにまとめる。
-Python で取得 → 静的 HTML を生成 → GitHub Actions で平日 19:17・21:17・23:17・翌朝 7:17（JST）に自動更新 → GitHub Pages で閲覧（スマホ前提）。
+Python で取得 → 静的 HTML を生成 → GitHub Actions で平日 7〜23 時台に毎時自動更新 → GitHub Pages で閲覧（スマホ前提）。
 
 ## 載せている指標
 
@@ -39,12 +39,10 @@ python -m venv .venv
 .venv\Scripts\python -m pytest -q
 ```
 
-## 更新ボタン
+## 更新
 
-公開ページ右上の「↻ 更新」で GitHub Actions のワークフローを起動し、完了後にページを読み込み直す。
-初回はトークンを聞かれる。GitHub の Settings → Developer settings → Fine-grained tokens で、
-このリポジトリだけに「Actions: Read and write」を付けたトークンを作って貼り付ける（そのブラウザの localStorage にだけ保存）。
-トークンを使わない場合は、ダイアログのリンクから GitHub の「Run workflow」で実行できる。
+GitHub Actions が平日 7:17〜23:17（JST）に毎時データを取り直して公開ページを作り直す。
+ページ右上の「↻ 更新」は最新版を読み込み直すボタン。すぐ取り直したいときは GitHub の Actions → update → Run workflow。
 
 ## 公開版と全指標版
 
@@ -56,7 +54,7 @@ TrendForce と SEAJ のデータは転載制限がある（SEAJ は「許可な�
 | コマンド | `python -m src.cli run --public` | `python -m src.cli run` |
 | 出力 | `docs/index.html` | `local/index.html`（git 管理外） |
 | TrendForce・SEAJ | 取得も表示もしない | 含む |
-| 更新 | GitHub Actions が平日 1日4回 | 手動（またはタスクスケジューラ） |
+| 更新 | GitHub Actions が平日 毎時 | 手動（またはタスクスケジューラ） |
 
 - 制限付きデータの CSV（`data/series/dram_*`・`nand_*`・`seaj_*`）は `.gitignore` 済みで、手元にだけ貯まる。
   メモリスポット価格の履歴を貯めたい場合は、手元で毎営業日 `run` を実行する。

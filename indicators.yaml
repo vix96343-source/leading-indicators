@@ -21,8 +21,6 @@
 site:
   title: 先行指標ダッシュボード
   timezone: Asia/Tokyo
-  repo: vix96343-source/leading-indicators   # 更新ボタンが動かす GitHub リポジトリ
-  workflow: update.yml
 
 groups:
   - id: semi
