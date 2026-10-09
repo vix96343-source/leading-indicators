@@ -42,28 +42,28 @@ tr.s.sel td { background: var(--sel) !important; }
     <span class="spacer"></span>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="表示テーマ切替">◐</button>
   </div>
-  <p class="summary">追い風<b class="up">{{ tally.up }}</b> 逆風<b class="down">{{ tally.down }}</b> 横ばい・中立<b>{{ tally.flat }}</b>　<span>行を押すと関連企業（日本株・米国株）を表示</span></p>
+  <p class="summary">行を押すと関連企業（日本株・米国株）を表示</p>
 
   <div class="layout">
     <div>
       <div class="scroll">
         <table>
           <thead>
-            <tr><th class="l">指標</th><th>日付</th><th>最新値</th><th colspan="3">変化</th><th>判定</th></tr>
+            <tr><th class="l">指標</th><th>日付</th><th>取得</th><th>最新値</th><th colspan="3">変化</th></tr>
           </thead>
           <tbody id="board">
           {% for g in groups %}
             <tr class="g"><td colspan="7" title="{{ g.note }}">{{ g.name }}</td></tr>
             {% for r in g.rows %}
             {% if loop.first or r.kind != loop.previtem.kind or r.section != loop.previtem.section %}
-            <tr class="h"><td class="l">{{ r.section or '' }}</td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}<td></td></tr>
+            <tr class="h"><td class="l">{{ r.section or '' }}</td><td></td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}</tr>
             {% endif %}
             <tr class="s"{% if r.related %} data-rel="{{ r.related }}"{% endif %} data-name="{{ r.name }}" data-lead="{{ r.lead }}" data-src="{{ r.source }}" data-url="{{ r.source_url }}" tabindex="0">
               <td class="l name">{{ r.name }}</td>
               <td class="date">{{ r.date }}{% if r.stale %}<span class="stale-mark" title="更新が止まっている可能性">*</span>{% endif %}</td>
+              <td class="date">{{ r.fetched }}</td>
               <td>{{ r.value }}<span class="unit"> {{ r.unit }}</span></td>
               {% for c in r.cols %}<td class="{{ c.cls }}">{{ c.value }}</td>{% endfor %}
-              <td class="{{ r.judge_cls }}">{{ r.judge }}</td>
             </tr>
             {% endfor %}
           {% endfor %}
@@ -71,8 +71,8 @@ tr.s.sel td { background: var(--sel) !important; }
         </table>
       </div>
       <p class="note">
-        日次は3か月の変化、月次は前年比が3か月前より2pt以上上がれば「加速」で判定。判定は関連銘柄にとっての追い風を赤、逆風をシアンで表示。
-        加速 = 前年比 − 3か月前の前年比（pt）。日付の * は更新が止まっている可能性。
+        日付はデータの対象日（月次は対象月）、取得はこのサイトがデータを取りに行った日時（日本時間）。
+        加速 = 前年比 − 3か月前の前年比（pt）。上昇は赤、下落はシアン。日付の * は更新が止まっている可能性。
       </p>
     </div>
 

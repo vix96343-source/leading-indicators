@@ -14,9 +14,6 @@ DOCS = store.ROOT / "docs"      # 公開版（GitHub Pages）
 LOCAL = store.ROOT / "local"    # 全指標版（転載制限のあるデータを含む。git 管理外）
 SOURCE_LABEL = {"stocks": "Yahoo Finance（関連企業）", "ctia": "中钨在线", "industry_jp": "業界統計（国交省・鉄鋼連盟・産機工・JNTO）", "esri": "内閣府", "trendforce": "TrendForce", "fred": "FRED", "yfinance": "Yahoo Finance",
                 "jmtba": "日本工作機械工業会", "seaj": "日本半導体製造装置協会"}
-ARROW = {"up": "↑", "down": "↓", "flat": "→", "none": "・"}
-DIRECTION_LABEL = {"up": "上昇", "down": "下落", "flat": "横ばい", "none": "判定不可"}
-YOY_DIRECTION_LABEL = {"up": "加速", "down": "減速", "flat": "横ばい", "none": "判定不可"}
 
 
 INDUSTRY_JP_LABEL = {"housing": "国土交通省", "steel": "日本鉄鋼連盟", "jsim": "日本産業機械工業会", "inbound": "JNTO"}
@@ -72,10 +69,13 @@ COLUMNS = {
     "yoy": ("前年比", "加速", "前月比"),
     "level": ("前月比", "3か月", "前年比"),
 }
-TONE_CLASS = {"good": "up", "bad": "down", "neutral": "flat"}
 
 
-def row(ind: dict, today: pd.Timestamp) -> dict:
+def data_date(d: pd.Timestamp, freq: str) -> str:
+    return d.strftime("%Y/%m" if freq == "monthly" else "%Y/%m/%d")
+
+
+def row(ind: dict, today: pd.Timestamp, fetched: dict[str, str]) -> dict:
     s = store.load(ind["id"]) * ind.get("scale", 1)
     a = analyze.summarize(ind, s, today)
     kind = "daily" if ind["freq"] == "daily" else "yoy" if ind.get("yoy") else "level"
@@ -84,22 +84,20 @@ def row(ind: dict, today: pd.Timestamp) -> dict:
     for label in COLUMNS[kind]:
         v, u = by_label.get(label, (None, ""))
         cols.append({"value": fmt(v, u, signed=True), "cls": _cls(v)})
-    labels = YOY_DIRECTION_LABEL if kind == "yoy" else DIRECTION_LABEL
     return {
         "id": ind["id"], "name": ind["name"], "lead": ind.get("lead", ""), "unit": ind.get("unit", ""),
         "kind": kind, "section": None,
         "value": fmt(a["latest"]),
-        "date": a["latest_date"].strftime("%y/%m" if ind["freq"] == "monthly" else "%m/%d") if a["latest"] is not None else "—",
+        "date": data_date(a["latest_date"], ind["freq"]) if a["latest"] is not None else "—",
+        "fetched": fetched.get(ind["source"], "—"),
         "stale": a.get("stale", False),
         "cols": cols,
-        "judge": "—" if a["direction"] == "none" else f'{ARROW[a["direction"]]}{labels[a["direction"]]}',
-        "judge_cls": TONE_CLASS.get(a["tone"], "flat"),
         "source": source_label(ind), "source_url": source_url(ind),
         "related": ind.get("related", ""),
     }
 
 
-def tf_rows(today: pd.Timestamp, related: str = "") -> list[dict]:
+def tf_rows(today: pd.Timestamp, fetched: dict[str, str], related: str = "") -> list[dict]:
     """TrendForce の全品目。前回比は TrendForce 表示の値、1か月・3か月は蓄積した履歴から計算。"""
     out = []
     for m in trendforce.load_meta():
@@ -115,16 +113,12 @@ def tf_rows(today: pd.Timestamp, related: str = "") -> list[dict]:
             return None if base.empty else (last / float(base.iloc[-1]) - 1) * 100
 
         c1m, c3m = since(30), since(91)
-        basis, thr = (c1m, 3.0) if c1m is not None else (prev, 0.5)
-        direction = "none" if basis is None else "up" if basis >= thr else "down" if basis <= -thr else "flat"
         out.append({
             "id": m["id"], "name": m["item"], "lead": m["section"], "unit": "USD", "kind": "tf",
             "section": m["section"],
-            "value": fmt(last), "date": last_date.strftime("%m/%d"),
+            "value": fmt(last), "date": data_date(last_date, "daily"), "fetched": fetched.get("trendforce", "—"),
             "stale": (today - last_date).days > 7,
             "cols": [{"value": fmt(v, "%", signed=True), "cls": _cls(v)} for v in (prev, c1m, c3m)],
-            "judge": "—" if direction == "none" else f"{ARROW[direction]}{DIRECTION_LABEL[direction]}",
-            "judge_cls": {"up": "up", "down": "down"}.get(direction, "flat"),
             "source": "TrendForce", "source_url": m["url"], "related": related,
         })
     return out
@@ -167,23 +161,20 @@ def build(public: bool = False) -> str:
     cfg = load_config()
     today = today_jst()
     inds = [i for i in cfg["indicators"] if not (public and i.get("restricted"))]
-    rows = {i["id"]: row(i, today) for i in inds}
+    status = json.loads(STATUS_PATH.read_text(encoding="utf-8")) if STATUS_PATH.exists() else {}
+    fetched = {k: datetime.fromisoformat(v["at"]).strftime("%m/%d %H:%M")
+               for k, v in status.items() if v.get("ok") and v.get("at")}
+    rows = {i["id"]: row(i, today, fetched) for i in inds}
 
     groups = []
     for g in cfg["groups"]:
         rs = [rows[i["id"]] for i in inds if i["group"] == g["id"]]
         if not public and cfg.get("trendforce", {}).get("group") == g["id"]:
-            rs = tf_rows(today, cfg["trendforce"].get("related", "")) + rs
+            rs = tf_rows(today, fetched, cfg["trendforce"].get("related", "")) + rs
         if rs:
             note = g.get("public_note", g["note"]) if public else g["note"]
             groups.append({**g, "note": note, "rows": rs})
 
-    tally = {"up": 0, "down": 0, "flat": 0}
-    for r in (r for g in groups for r in g["rows"]):
-        tally[r["judge_cls"]] += 1
-
-
-    status = json.loads(STATUS_PATH.read_text(encoding="utf-8")) if STATUS_PATH.exists() else {}
     used = {i["source"] for i in inds} | {"stocks"}
     if not public and cfg.get("trendforce"):
         used.add("trendforce")
@@ -194,8 +185,8 @@ def build(public: bool = False) -> str:
                       autoescape=select_autoescape(["html", "j2"]))
     html = env.get_template("index.html.j2").render(
         title=cfg["site"]["title"],
-        generated_at=datetime.now(JST).strftime("%Y-%m-%d %H:%M"),
-        groups=groups, tally=tally, columns=COLUMNS,
+        generated_at=datetime.now(JST).strftime("%Y/%m/%d %H:%M"),
+        groups=groups, columns=COLUMNS,
         baskets=basket_data({r["related"] for g in groups for r in g["rows"] if r["related"]}),
         status=status_rows, public=public,
     )
