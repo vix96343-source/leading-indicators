@@ -59,7 +59,22 @@ def test_daily_short_history_has_no_long_changes():
 
 def test_store_upsert_overwrites_same_date(tmp_path, monkeypatch):
     monkeypatch.setattr(store, "SERIES_DIR", tmp_path)
+    monkeypatch.setattr(store, "UPDATED_PATH", tmp_path / "updated.json")
     store.upsert("x", pd.Series({pd.Timestamp("2026-01-01"): 1.0, pd.Timestamp("2026-02-01"): 2.0}))
     n = store.upsert("x", pd.Series({pd.Timestamp("2026-02-01"): 3.0, pd.Timestamp("2026-03-01"): 4.0}))
     assert n == 2
     assert list(store.load("x").values) == [1.0, 3.0, 4.0]
+
+
+def test_updated_date_moves_only_when_a_new_period_appears(tmp_path, monkeypatch):
+    monkeypatch.setattr(store, "SERIES_DIR", tmp_path)
+    monkeypatch.setattr(store, "UPDATED_PATH", tmp_path / "updated.json")
+    store.upsert("m", pd.Series({pd.Timestamp("2026-07-01"): 1.0}))
+    first = store.load_updated()["m"]
+    store.UPDATED_PATH.write_text('{"m": "2026-01-01"}', encoding="utf-8")
+    store.upsert("m", pd.Series({pd.Timestamp("2026-07-01"): 2.0}))  # 同じ月の改定
+    assert store.load_updated()["m"] == "2026-01-01"
+    store.upsert("m", pd.Series({pd.Timestamp("2026-08-01"): 3.0}))  # 新しい月
+    assert store.load_updated()["m"] == first
+    store.upsert("stk_X", pd.Series({pd.Timestamp("2026-08-01"): 3.0}))  # 株価は記録しない
+    assert "stk_X" not in store.load_updated()

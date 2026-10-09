@@ -49,19 +49,18 @@ tr.s.sel td { background: var(--sel) !important; }
       <div class="scroll">
         <table>
           <thead>
-            <tr><th class="l">指標</th><th>日付</th><th>取得</th><th>最新値</th><th colspan="3">変化</th></tr>
+            <tr><th class="l">指標</th><th>更新日</th><th>最新値</th><th colspan="3">変化</th></tr>
           </thead>
           <tbody id="board">
           {% for g in groups %}
-            <tr class="g"><td colspan="7" title="{{ g.note }}">{{ g.name }}</td></tr>
+            <tr class="g"><td colspan="6" title="{{ g.note }}">{{ g.name }}</td></tr>
             {% for r in g.rows %}
             {% if loop.first or r.kind != loop.previtem.kind or r.section != loop.previtem.section %}
-            <tr class="h"><td class="l">{{ r.section or '' }}</td><td></td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}</tr>
+            <tr class="h"><td class="l">{{ r.section or '' }}</td><td></td><td></td>{% for label in columns[r.kind] %}<td>{{ label }}</td>{% endfor %}</tr>
             {% endif %}
             <tr class="s"{% if r.related %} data-rel="{{ r.related }}"{% endif %} data-name="{{ r.name }}" data-lead="{{ r.lead }}" data-src="{{ r.source }}" data-url="{{ r.source_url }}" tabindex="0">
               <td class="l name">{{ r.name }}</td>
-              <td class="date">{{ r.date }}{% if r.stale %}<span class="stale-mark" title="更新が止まっている可能性">*</span>{% endif %}</td>
-              <td class="date">{{ r.fetched }}</td>
+              <td class="date">{{ r.date }}{% if r.period %} <span class="unit">({{ r.period }})</span>{% endif %}{% if r.stale %}<span class="stale-mark" title="更新が止まっている可能性">*</span>{% endif %}</td>
               <td>{{ r.value }}<span class="unit"> {{ r.unit }}</span></td>
               {% for c in r.cols %}<td class="{{ c.cls }}">{{ c.value }}</td>{% endfor %}
             </tr>
@@ -71,7 +70,7 @@ tr.s.sel td { background: var(--sel) !important; }
         </table>
       </div>
       <p class="note">
-        日付はデータの対象日（月次は対象月）、取得はこのサイトがデータを取りに行った日時（日本時間）。
+        更新日は新しい数値が出た日。日次は取引日、月次は新しい月の値が公表された日（括弧内は何月分の数値か）。
         加速 = 前年比 − 3か月前の前年比（pt）。上昇は赤、下落はシアン。日付の * は更新が止まっている可能性。
       </p>
     </div>

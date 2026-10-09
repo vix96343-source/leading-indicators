@@ -1,10 +1,30 @@
-"""系列データの保存: data/series/<id>.csv (date,value)。日付で upsert する。"""
+"""系列データの保存: data/series/<id>.csv (date,value)。日付で upsert する。
+
+あわせて data/updated.json に「新しい期間の値が初めて取れた日（JST）」を系列ごとに記録する。
+月次統計の公表日の代わりとしてサイトの「更新日」に使う。
+"""
+import json
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 SERIES_DIR = ROOT / "data" / "series"
+UPDATED_PATH = ROOT / "data" / "updated.json"
+
+
+def load_updated() -> dict[str, str]:
+    if not UPDATED_PATH.exists():
+        return {}
+    return json.loads(UPDATED_PATH.read_text(encoding="utf-8"))
+
+
+def _mark_updated(series_id: str) -> None:
+    upd = load_updated()
+    upd[series_id] = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%Y-%m-%d")
+    UPDATED_PATH.write_text(json.dumps(dict(sorted(upd.items())), ensure_ascii=False, indent=1), encoding="utf-8")
 
 
 def path_for(series_id: str) -> Path:
@@ -33,4 +53,7 @@ def upsert(series_id: str, new: pd.Series) -> int:
     out = merged.rename("value").to_frame()
     out.index.name = "date"
     out.to_csv(path_for(series_id), date_format="%Y-%m-%d", float_format="%.10g")
+    # 新しい期間の値が出たら更新日を記録（値の改定では動かさない）。日次の系列は取引日そのものを使うので記録しない
+    if not series_id.startswith(("stk_", "tf_")) and (old.empty or merged.index[-1] > old.index[-1]):
+        _mark_updated(series_id)
     return changed

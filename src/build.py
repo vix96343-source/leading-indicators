@@ -71,11 +71,16 @@ COLUMNS = {
 }
 
 
-def data_date(d: pd.Timestamp, freq: str) -> str:
-    return d.strftime("%Y/%m" if freq == "monthly" else "%Y/%m/%d")
+def updated_on(ind: dict, latest: pd.Timestamp, updated: dict[str, str]) -> tuple[str, str]:
+    """(更新日, 対象期間の注記)。日次は取引日、月次は新しい月の値が初めて取れた日（公表日の代わり）。"""
+    if ind["freq"] != "monthly":
+        return latest.strftime("%Y/%m/%d"), ""
+    day = updated.get(ind["id"])
+    period = f"{latest.month}月分" if latest.year == pd.Timestamp.now().year else f"{latest.year}年{latest.month}月分"
+    return (pd.Timestamp(day).strftime("%Y/%m/%d") if day else "—"), period
 
 
-def row(ind: dict, today: pd.Timestamp, fetched: dict[str, str]) -> dict:
+def row(ind: dict, today: pd.Timestamp, updated: dict[str, str]) -> dict:
     s = store.load(ind["id"]) * ind.get("scale", 1)
     a = analyze.summarize(ind, s, today)
     kind = "daily" if ind["freq"] == "daily" else "yoy" if ind.get("yoy") else "level"
@@ -88,8 +93,7 @@ def row(ind: dict, today: pd.Timestamp, fetched: dict[str, str]) -> dict:
         "id": ind["id"], "name": ind["name"], "lead": ind.get("lead", ""), "unit": ind.get("unit", ""),
         "kind": kind, "section": None,
         "value": fmt(a["latest"]),
-        "date": data_date(a["latest_date"], ind["freq"]) if a["latest"] is not None else "—",
-        "fetched": fetched.get(ind["source"], "—"),
+        **dict(zip(("date", "period"), updated_on(ind, a["latest_date"], updated) if a["latest"] is not None else ("—", ""))),
         "stale": a.get("stale", False),
         "cols": cols,
         "source": source_label(ind), "source_url": source_url(ind),
@@ -97,7 +101,7 @@ def row(ind: dict, today: pd.Timestamp, fetched: dict[str, str]) -> dict:
     }
 
 
-def tf_rows(today: pd.Timestamp, fetched: dict[str, str], related: str = "") -> list[dict]:
+def tf_rows(today: pd.Timestamp, related: str = "") -> list[dict]:
     """TrendForce の全品目。前回比は TrendForce 表示の値、1か月・3か月は蓄積した履歴から計算。"""
     out = []
     for m in trendforce.load_meta():
@@ -116,7 +120,7 @@ def tf_rows(today: pd.Timestamp, fetched: dict[str, str], related: str = "") -> 
         out.append({
             "id": m["id"], "name": m["item"], "lead": m["section"], "unit": "USD", "kind": "tf",
             "section": m["section"],
-            "value": fmt(last), "date": data_date(last_date, "daily"), "fetched": fetched.get("trendforce", "—"),
+            "value": fmt(last), "date": last_date.strftime("%Y/%m/%d"), "period": "",
             "stale": (today - last_date).days > 7,
             "cols": [{"value": fmt(v, "%", signed=True), "cls": _cls(v)} for v in (prev, c1m, c3m)],
             "source": "TrendForce", "source_url": m["url"], "related": related,
@@ -161,20 +165,19 @@ def build(public: bool = False) -> str:
     cfg = load_config()
     today = today_jst()
     inds = [i for i in cfg["indicators"] if not (public and i.get("restricted"))]
-    status = json.loads(STATUS_PATH.read_text(encoding="utf-8")) if STATUS_PATH.exists() else {}
-    fetched = {k: datetime.fromisoformat(v["at"]).strftime("%m/%d %H:%M")
-               for k, v in status.items() if v.get("ok") and v.get("at")}
-    rows = {i["id"]: row(i, today, fetched) for i in inds}
+    updated = store.load_updated()
+    rows = {i["id"]: row(i, today, updated) for i in inds}
 
     groups = []
     for g in cfg["groups"]:
         rs = [rows[i["id"]] for i in inds if i["group"] == g["id"]]
         if not public and cfg.get("trendforce", {}).get("group") == g["id"]:
-            rs = tf_rows(today, fetched, cfg["trendforce"].get("related", "")) + rs
+            rs = tf_rows(today, cfg["trendforce"].get("related", "")) + rs
         if rs:
             note = g.get("public_note", g["note"]) if public else g["note"]
             groups.append({**g, "note": note, "rows": rs})
 
+    status = json.loads(STATUS_PATH.read_text(encoding="utf-8")) if STATUS_PATH.exists() else {}
     used = {i["source"] for i in inds} | {"stocks"}
     if not public and cfg.get("trendforce"):
         used.add("trendforce")
