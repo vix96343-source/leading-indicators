@@ -7,13 +7,13 @@
   },
   "yfinance": {
     "ok": true,
-    "at": "2026-10-19T09:13:39+09:00",
-    "updated_rows": 26,
+    "at": "2026-10-19T13:41:26+09:00",
+    "updated_rows": 12,
     "message": ""
   },
   "jmtba": {
     "ok": true,
-    "at": "2026-10-19T09:13:52+09:00",
+    "at": "2026-10-19T13:43:16+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -25,18 +25,18 @@
   },
   "fred": {
     "ok": false,
-    "at": "2026-10-19T09:13:56+09:00",
+    "at": "2026-10-19T13:43:20+09:00",
     "message": "RuntimeError: FRED: 全系列失敗 IPG3344S: ReadTimeout / PERMIT: ReadTimeout"
   },
   "stocks": {
     "ok": true,
-    "at": "2026-10-19T09:20:11+09:00",
-    "updated_rows": 126,
+    "at": "2026-10-19T13:49:36+09:00",
+    "updated_rows": 81,
     "message": "143 銘柄"
   },
   "esri": {
     "ok": true,
-    "at": "2026-10-19T09:13:49+09:00",
+    "at": "2026-10-19T13:43:14+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -48,8 +48,8 @@
   },
   "industry_jp": {
     "ok": true,
-    "at": "2026-10-19T09:13:42+09:00",
+    "at": "2026-10-19T13:41:31+09:00",
     "updated_rows": 0,
-    "message": ""
+    "message": "未取得: jsim_total, jsim_domestic, jsim_foreign"
   }
 }
