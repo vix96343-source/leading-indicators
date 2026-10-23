@@ -7,13 +7,13 @@
   },
   "yfinance": {
     "ok": true,
-    "at": "2026-10-23T13:50:11+09:00",
-    "updated_rows": 26,
+    "at": "2026-10-23T19:04:22+09:00",
+    "updated_rows": 10,
     "message": ""
   },
   "jmtba": {
     "ok": true,
-    "at": "2026-10-23T13:50:36+09:00",
+    "at": "2026-10-23T19:04:34+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -25,18 +25,18 @@
   },
   "fred": {
     "ok": false,
-    "at": "2026-10-23T13:50:40+09:00",
+    "at": "2026-10-23T19:04:38+09:00",
     "message": "RuntimeError: FRED: 全系列失敗 IPG3344S: ReadTimeout / PERMIT: ReadTimeout"
   },
   "stocks": {
     "ok": true,
-    "at": "2026-10-23T13:56:55+09:00",
-    "updated_rows": 185,
+    "at": "2026-10-23T19:10:53+09:00",
+    "updated_rows": 81,
     "message": "143 銘柄"
   },
   "esri": {
     "ok": true,
-    "at": "2026-10-23T13:50:33+09:00",
+    "at": "2026-10-23T19:04:32+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -48,8 +48,8 @@
   },
   "industry_jp": {
     "ok": true,
-    "at": "2026-10-23T13:50:17+09:00",
+    "at": "2026-10-23T19:04:25+09:00",
     "updated_rows": 0,
-    "message": "未取得: steel_crude"
+    "message": ""
   }
 }
