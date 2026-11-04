@@ -7,13 +7,13 @@
   },
   "yfinance": {
     "ok": true,
-    "at": "2026-11-04T15:22:43+09:00",
-    "updated_rows": 21,
+    "at": "2026-11-05T00:26:22+09:00",
+    "updated_rows": 17,
     "message": ""
   },
   "jmtba": {
     "ok": true,
-    "at": "2026-11-04T15:22:56+09:00",
+    "at": "2026-11-05T00:26:36+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -25,18 +25,18 @@
   },
   "fred": {
     "ok": false,
-    "at": "2026-11-04T15:23:00+09:00",
+    "at": "2026-11-05T00:26:40+09:00",
     "message": "RuntimeError: FRED: 全系列失敗 IPG3344S: ReadTimeout / PERMIT: ReadTimeout"
   },
   "stocks": {
     "ok": true,
-    "at": "2026-11-04T15:29:15+09:00",
-    "updated_rows": 147,
+    "at": "2026-11-05T00:32:55+09:00",
+    "updated_rows": 63,
     "message": "143 銘柄"
   },
   "esri": {
     "ok": true,
-    "at": "2026-11-04T15:22:54+09:00",
+    "at": "2026-11-05T00:26:33+09:00",
     "updated_rows": 0,
     "message": ""
   },
@@ -48,7 +48,7 @@
   },
   "industry_jp": {
     "ok": true,
-    "at": "2026-11-04T15:22:47+09:00",
+    "at": "2026-11-05T00:26:26+09:00",
     "updated_rows": 0,
     "message": ""
   }
